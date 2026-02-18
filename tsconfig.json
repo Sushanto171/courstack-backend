@@ -10,5 +10,9 @@
     "target": "ES2023",
     "strict": true,
     "esModuleInterop": true,
+  },
+  "ts-node": {
+    "esm": true,
+    "experimentalSpecifiers": true
   }
 }

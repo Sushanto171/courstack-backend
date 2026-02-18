@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "start": "node run ./dist/server.js",
-    "dev": "ts-node-dev --respawn --transpile-only ./src/server.ts",
+    "dev": "bun --watch src/server.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "npx eslint ./src",
     "build": "tsc"
@@ -16,6 +16,7 @@
   "license": "ISC",
   "packageManager": "pnpm@10.18.3",
   "dependencies": {
+    "@types/express": "^5.0.6",
     "cors": "^2.8.6",
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
