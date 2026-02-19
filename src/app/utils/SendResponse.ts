@@ -9,13 +9,15 @@ const sendResponse = <T>(res: Response, jsonData: {
     limit: number,
     total: number
   },
-  data: T | null | undefined
+  data: T | null | undefined,
+  error?: unknown
 }) => {
   res.status(jsonData.statusCode).json({
     success: jsonData.success,
     message: jsonData.message,
     meta: jsonData.meta || null || undefined,
-    data: jsonData.data || null || undefined
+    data: jsonData.data || null || undefined,
+    error: jsonData.error || null || undefined
   })
 }
 
