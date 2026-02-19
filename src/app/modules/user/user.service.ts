@@ -1,6 +1,7 @@
-import { Role } from "../../../generated/prisma/enums";
+import { Role, UserStatus } from "../../../generated/prisma/enums";
 import { UserCreateInput } from "../../../generated/prisma/models";
 import { permissions } from "../../config/permissions";
+import redisClient from "../../config/redis";
 import { ApiError } from "../../helper/ApiError";
 import httpStatus from "../../helper/httpStatusCode";
 import { hashPassword } from "../../utils/bcrypt";
@@ -29,22 +30,42 @@ const createAdmin = async (payload: UserCreateInput) => {
   return res
 }
 
-const getUserWithPermissions = async (email: string) => {
+interface IGetUserWithPermission {
+  id: string;
+  email: string;
+  status: UserStatus;
+  role: Role;
+  deletedAt: Date | null;
+  permissions: string[];
+}
 
-  const user = await userRepository.findByEmail(email);
+const getUserWithPermissions = async (email: string): Promise<IGetUserWithPermission> => {
 
-  if (!user) throw new ApiError(httpStatus.UNAUTHORIZED, "User no longer exists");
+  const cacheKey = `auth:user:${email}`;
 
-  const rolePermissions = permissions.getPermissionsForRole(user.role)
+  const cached = await redisClient.get(cacheKey);
+  // return from cache
+  if (cached) return JSON.parse(cached);
 
-  return {
-    id: user.id,
+  const isExist = await userRepository.findByEmail(email);
+
+  if (!isExist) throw new ApiError(httpStatus.UNAUTHORIZED, "User no longer exists");
+
+  const rolePermissions = permissions.getPermissionsForRole(isExist.role)
+
+  const user = {
+    id: isExist.id,
     email,
-    status: user.status,
-    role: user.role,
-    deletedAt: user.deletedAt,
+    status: isExist.status,
+    role: isExist.role,
+    deletedAt: isExist.deletedAt,
     permissions: rolePermissions
   }
+
+  // store cache
+  await redisClient.set(cacheKey, JSON.stringify(user), { expiration: { type: "EX", value: 900 } });
+
+  return user
 }
 
 export const userService = {
