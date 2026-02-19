@@ -1,3 +1,4 @@
+import { ApiError } from "../../helper/ApiError";
 import httpStatus from "../../helper/httpStatusCode";
 import catchAsync from "../../utils/catchAsync";
 import { setCookie } from "../../utils/cookie";
@@ -18,7 +19,24 @@ const login = catchAsync(async (req, res) => {
   })
 })
 
+const getMe = catchAsync(async (req, res) => {
+
+  if (!req.user?.email) throw new ApiError(httpStatus.UNAUTHORIZED, "User no longer exists");
+
+  const data = await authService.getMe(req.user.email)
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Profile info retrieved successfully.",
+    data
+  })
+})
+
+
+
 
 export const authController = {
-  login
+  login,
+  getMe
 }

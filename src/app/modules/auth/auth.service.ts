@@ -1,4 +1,5 @@
 import { ApiError } from "../../helper/ApiError";
+import { checkUserHealth } from "../../helper/checkUserHealth";
 import httpStatus from "../../helper/httpStatusCode";
 import { comparePasswords } from "../../utils/bcrypt";
 import { generateAccessAndRefreshToken } from "../../utils/jwt";
@@ -10,6 +11,10 @@ const login = async (payload: Login) => {
   const isExist = await userRepository.findByEmail(payload.email, false)
 
   if (!isExist) throw new ApiError(httpStatus.BAD_REQUEST, "Invalid email or password");
+
+  // verify status and deleted
+  checkUserHealth(isExist)
+
 
   const matchPassword = await comparePasswords(payload.password, isExist.password)
 
@@ -23,6 +28,13 @@ const login = async (payload: Login) => {
   return { userData, tokens }
 };
 
+const getMe = async (email: string) => {
+  const data = await userRepository.findByEmail(email)
+
+  return data
+}
+
 export const authService = {
-  login
+  login,
+  getMe
 };
