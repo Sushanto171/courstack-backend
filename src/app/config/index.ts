@@ -10,5 +10,12 @@ export default {
     email: process.env.SEED_SUPER_ADMIN_EMAIL,
     password: process.env.SEED_SUPER_ADMIN_PASSWORD,
     name: process.env.SEED_SUPER_ADMIN_NAME ?? 'Super Admin',
+  },
+  jwt: {
+    JWT_ACCESS_SECRET: process.env.JWT_ACCESS_SECRET || "YOUR_ACCESS_SECRET",
+    JWT_ACCESS_EXPIRE_IN: process.env.JWT_ACCESS_EXPIRE_IN || "1d",
+
+    JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET || "YOUR_REFRESH_SECRET",
+    JWT_REFRESH_EXPIRE_IN: process.env.JWT_REFRESH_EXPIRE_IN || "7d",
   }
 }

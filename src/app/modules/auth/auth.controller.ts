@@ -1,20 +1,20 @@
 import httpStatus from "../../helper/httpStatusCode";
 import catchAsync from "../../utils/catchAsync";
 import sendResponse from "../../utils/SendResponse";
+import { authService } from "./auth.service";
 
-const getUsersFromDB = catchAsync(async (req, res) => {
+const login = catchAsync(async (req, res) => {
+
+  const data = await authService.login(req.body)
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: "User fetched successfully",
-    data: {
-      name: "John Doe",
-      email: "john.doe@example.com"
-    }
+    message: "Logged in successfully",
+    data
   })
 })
 
 
 export const authController = {
-  getUsersFromDB
+  login
 }

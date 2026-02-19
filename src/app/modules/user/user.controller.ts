@@ -28,7 +28,21 @@ const createUser = catchAsync(async (req, res) => {
   })
 })
 
+// only can access super admin
+const createAdmin = catchAsync(async (req, res) => {
+
+  const data = await userService.createAdmin(req.body)
+
+  sendResponse(res, {
+    statusCode: httpStatus.CREATED,
+    success: true,
+    message: "Admin created successfully",
+    data
+  })
+})
+
 export const userController = {
   getUsersFromDB,
-  createUser
+  createUser,
+  createAdmin
 }

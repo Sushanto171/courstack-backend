@@ -17,9 +17,12 @@ const findAll = () => {
   });
 };
 
-const findByEmail = (email: string) => {
+const findByEmail = (email: string, omitPassword = true) => {
   return prisma.user.findUnique({
-    where: { email }
+    where: { email },
+    omit: {
+      password: omitPassword
+    }
   });
 };
 
