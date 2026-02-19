@@ -1,14 +1,17 @@
 import { Role, UserStatus } from "../../../generated/prisma/enums";
 import { UserCreateInput } from "../../../generated/prisma/models";
 import { permissions } from "../../config/permissions";
-import redisClient from "../../config/redis";
 import { ApiError } from "../../helper/ApiError";
 import httpStatus from "../../helper/httpStatusCode";
 import { hashPassword } from "../../utils/bcrypt";
 import { userRepository } from "./user.repository";
 
-const getUsersFromDB = async () => {
-  const users = await userRepository.findAll()
+const getUsersFromDB = async (role: Role) => {
+
+  const users = await userRepository.findAll({
+    allowedRoles: role === Role.ADMIN ? [Role.INSTRUCTOR, Role.STUDENT] : [],
+  })
+
   return users
 };
 
@@ -41,11 +44,11 @@ interface IGetUserWithPermission {
 
 const getUserWithPermissions = async (email: string): Promise<IGetUserWithPermission> => {
 
-  const cacheKey = `auth:user:${email}`;
+  // const cacheKey = `auth:user:${email}`;
 
-  const cached = await redisClient.get(cacheKey);
+  // const cached = await redisClient?.get(cacheKey);
   // return from cache
-  if (cached) return JSON.parse(cached);
+  // if (cached) return JSON.parse(cached);
 
   const isExist = await userRepository.findByEmail(email);
 
@@ -63,7 +66,7 @@ const getUserWithPermissions = async (email: string): Promise<IGetUserWithPermis
   }
 
   // store cache
-  await redisClient.set(cacheKey, JSON.stringify(user), { expiration: { type: "EX", value: 900 } });
+  // await redisClient?.set(cacheKey, JSON.stringify(user), { expiration: { type: "EX", value: 900 } });
 
   return user
 }

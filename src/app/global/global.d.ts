@@ -11,7 +11,8 @@ declare global {
         email: string,
         role: Role,
         status: UserStatus,
-        deletedAt: Date | null
+        deletedAt: Date | null,
+        permissions?: string[]
       };
     }
   }

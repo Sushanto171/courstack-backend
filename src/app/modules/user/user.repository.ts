@@ -1,5 +1,16 @@
-import { UserCreateInput } from "../../../generated/prisma/models";
+import { Role } from "../../../generated/prisma/enums";
+import { UserCreateInput, UserWhereInput } from "../../../generated/prisma/models";
 import { prisma } from "../../config/prisma";
+
+interface FindAllOptions {
+  cursor?: string;
+  limit?: number;
+  q?: string;
+  status?: string;
+  sort?: string;
+  order?: 'asc' | 'desc';
+  allowedRoles?: Role[];
+}
 
 const create = (data: UserCreateInput) => {
   return prisma.user.create({
@@ -8,8 +19,22 @@ const create = (data: UserCreateInput) => {
   });
 };
 
-const findAll = () => {
+
+
+const findAll = (options: FindAllOptions) => {
+
+  const { allowedRoles } = options;
+
+  const where: UserWhereInput = {}
+
+  if (allowedRoles && allowedRoles.length > 0) {
+    where.role = {
+      in: allowedRoles.map(role => role)
+    };
+  }
+
   return prisma.user.findMany({
+    where,
     orderBy: { createdAt: "desc" },
     omit: {
       password: true

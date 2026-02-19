@@ -1,7 +1,7 @@
 
 import { Role } from "../../generated/prisma/enums";
 
-const PERMISSIONS = {
+export const PERMISSIONS = {
   // Admin Management
   ADMIN_CREATE: 'admin:create',
   ADMIN_UPDATE: 'admin:update',
@@ -42,12 +42,14 @@ const PERMISSIONS = {
   ENROLLMENT_VIEW_STUDENTS: 'enrollment:view_students',
 };
 
-const ROLE_PERMISSIONS = {
+export const ROLE_PERMISSIONS = {
   SUPER_ADMIN: [
     PERMISSIONS.ADMIN_CREATE,
     PERMISSIONS.ADMIN_UPDATE,
     PERMISSIONS.ADMIN_DELETE,
     PERMISSIONS.ADMIN_VIEW,
+    PERMISSIONS.INSTRUCTOR_VIEW,
+    PERMISSIONS.STUDENT_VIEW,
     PERMISSIONS.SYSTEM_CONFIGURE,
     PERMISSIONS.SYSTEM_VIEW_STATS,
   ],
@@ -60,6 +62,7 @@ const ROLE_PERMISSIONS = {
     PERMISSIONS.STUDENT_SUSPEND,
     PERMISSIONS.STUDENT_REMOVE,
     PERMISSIONS.STUDENT_VIEW,
+    PERMISSIONS.ADMIN_VIEW,
     PERMISSIONS.CATEGORY_CREATE,
     PERMISSIONS.CATEGORY_UPDATE,
     PERMISSIONS.CATEGORY_DELETE,
@@ -89,4 +92,6 @@ const getPermissionsForRole = (role: Role) => {
   return ROLE_PERMISSIONS[role] || [];
 };
 
-export  const permissions = { getPermissionsForRole, PERMISSIONS, ROLE_PERMISSIONS }
+export enum ip { "sss", "ere" }
+
+export const permissions = { getPermissionsForRole, PERMISSIONS, ROLE_PERMISSIONS }
