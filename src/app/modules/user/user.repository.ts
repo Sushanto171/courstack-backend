@@ -2,7 +2,10 @@ import { UserCreateInput } from "../../../generated/prisma/models";
 import { prisma } from "../../config/prisma";
 
 const create = (data: UserCreateInput) => {
-  return prisma.user.create({ data });
+  return prisma.user.create({
+    data,
+    omit: { password: true }
+  });
 };
 
 const findAll = () => {

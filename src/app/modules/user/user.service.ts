@@ -1,4 +1,5 @@
 import { UserCreateInput } from "../../../generated/prisma/models";
+import { hashPassword } from "../../utils/bcrypt";
 import { userRepository } from "./user.repository";
 
 const getUsersFromDB = async () => {
@@ -7,6 +8,9 @@ const getUsersFromDB = async () => {
 };
 
 const createUser = async (payload: UserCreateInput) => {
+
+  payload.password = await hashPassword(payload.password)
+
   const res = await userRepository.create(payload)
   return res
 }
