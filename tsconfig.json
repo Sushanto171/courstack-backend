@@ -14,5 +14,6 @@
   "ts-node": {
     "esm": true,
     "experimentalSpecifiers": true
-  }
+  },
+  "include": ["src"]
 }
