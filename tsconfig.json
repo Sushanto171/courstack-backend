@@ -1,19 +1,16 @@
 {
-  // Visit https://aka.ms/tsconfig to read more about this file
   "compilerOptions": {
-    // File Layout
     "rootDir": "./src",
     "outDir": "./dist",
 
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "target": "ES2023",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "target": "ES2022",
+
     "strict": true,
     "esModuleInterop": true,
-  },
-  "ts-node": {
-    "esm": true,
-    "experimentalSpecifiers": true
+    "skipLibCheck": true,
+    "sourceMap": true
   },
   "include": ["src"]
 }
