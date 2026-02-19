@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// prisma/seedSuperAdmin.ts
 
 import config from '../config';
 import { prisma } from '../config/prisma';

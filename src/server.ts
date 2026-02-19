@@ -13,7 +13,7 @@ const startServer = async () => {
       console.log(`⚡ Server is running on: http://localhost:${config.port}`);
     });
 
-   await seedSuperAdmin()
+    await seedSuperAdmin()
 
     // Function to gracefully shut down the server
     const exitHandler = () => {
