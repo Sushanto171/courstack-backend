@@ -16,4 +16,7 @@ router.post("/", validateRequest(userValidation.createUser), userController.crea
 // only super_admin authorize access
 router.post("/create-admin", authenticate, authorize(PERMISSIONS.ADMIN_CREATE), validateRequest(userValidation.createUser), userController.createAdmin)
 
+// For super_admin and admin access only
+router.patch("/update-status", validateRequest(userValidation.updateUserStatusSchema), authenticate, authorize(PERMISSIONS.USER_STATUS_UPDATE), userController.updateStatus)
+
 export const userRoutes = router;

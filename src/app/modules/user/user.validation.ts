@@ -1,5 +1,5 @@
 import z from "zod";
-import { Gender } from "../../../generated/prisma/enums";
+import { Gender, UserStatus } from "../../../generated/prisma/enums";
 
 const createUser = z.object({
   name: z
@@ -37,7 +37,17 @@ const updateUser = {
   }
 }
 
+const updateUserStatusSchema = z.object({
+  email: z.email('Invalid email format')
+    .toLowerCase()
+    .trim(),
+  status: z.enum(Object.keys(UserStatus)),
+});
+
+export type UpdateUserStatus = z.infer<typeof updateUserStatusSchema>
+
 export const userValidation = {
-  createUser, updateUser
+  createUser, updateUser,
+  updateUserStatusSchema
 };
 

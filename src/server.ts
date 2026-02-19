@@ -1,6 +1,7 @@
 import { Server } from "http";
 import app from "./app";
 import config from "./app/config";
+import redisClient from "./app/config/redis";
 import seedSuperAdmin from "./app/helper/seedSuperAdmin";
 
 
@@ -15,7 +16,7 @@ const startServer = async () => {
 
     await seedSuperAdmin()
 
-    // await redisClient.connect();
+    await redisClient.connect();
     // console.log("📤 Redis connection established!");
 
     // Function to gracefully shut down the server

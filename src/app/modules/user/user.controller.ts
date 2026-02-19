@@ -8,7 +8,7 @@ import { userService } from "./user.service";
 const getUsersFromDB = catchAsync(async (req, res) => {
 
   const data = await userService.getUsersFromDB(req!.user!.role as Role)
-  
+
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
@@ -30,7 +30,7 @@ const createUser = catchAsync(async (req, res) => {
   })
 })
 
-// only authorize access super admin
+// For super_admin access only
 const createAdmin = catchAsync(async (req, res) => {
 
   const data = await userService.createAdmin(req.body)
@@ -43,8 +43,22 @@ const createAdmin = catchAsync(async (req, res) => {
   })
 })
 
+// For super_admin and admin access only
+const updateStatus = catchAsync(async (req, res) => {
+
+  const data = await userService.updateStatus(req!.user!.role, req.body)
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "User status updated successfully",
+    data
+  })
+})
+
 export const userController = {
   getUsersFromDB,
   createUser,
-  createAdmin
+  createAdmin,
+  updateStatus
 }

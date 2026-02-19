@@ -1,15 +1,27 @@
 import { Role, UserStatus } from "../../../generated/prisma/enums";
 import { UserCreateInput } from "../../../generated/prisma/models";
 import { permissions } from "../../config/permissions";
+import redisClient from "../../config/redis";
 import { ApiError } from "../../helper/ApiError";
 import httpStatus from "../../helper/httpStatusCode";
+import { invalidateUserCache } from "../../helper/invalidateUserCache";
 import { hashPassword } from "../../utils/bcrypt";
 import { userRepository } from "./user.repository";
+import { UpdateUserStatus } from "./user.validation";
 
-const getUsersFromDB = async (role: Role) => {
+interface IGetUserWithPermission {
+  id: string;
+  email: string;
+  status: UserStatus;
+  role: Role;
+  deletedAt: Date | null;
+  permissions: string[];
+}
+
+const getUsersFromDB = async (authRole: Role) => {
 
   const users = await userRepository.findAll({
-    allowedRoles: role === Role.ADMIN ? [Role.INSTRUCTOR, Role.STUDENT] : [],
+    allowedRoles: authRole === Role.ADMIN ? [Role.INSTRUCTOR, Role.STUDENT] : [],
   })
 
   return users
@@ -33,22 +45,27 @@ const createAdmin = async (payload: UserCreateInput) => {
   return res
 }
 
-interface IGetUserWithPermission {
-  id: string;
-  email: string;
-  status: UserStatus;
-  role: Role;
-  deletedAt: Date | null;
-  permissions: string[];
+const updateStatus = async (authRole: Role, payload: UpdateUserStatus) => {
+  const isExist = await userRepository.findByEmail(payload.email)
+
+  if (!isExist) throw new ApiError(httpStatus.NOT_FOUND, "User not found!");
+
+  if (authRole === Role.ADMIN && !(isExist.role === Role.INSTRUCTOR || isExist.role === Role.STUDENT)) throw new ApiError(httpStatus.UNAUTHORIZED, "UnAuthorized access!")
+
+  const res = await userRepository.updateByEmail(isExist.email, { status: payload.status as UserStatus });
+
+  await invalidateUserCache(res.email)
+
+  return res
 }
 
 const getUserWithPermissions = async (email: string): Promise<IGetUserWithPermission> => {
 
-  // const cacheKey = `auth:user:${email}`;
+  const cacheKey = `auth:user:${email}`;
 
-  // const cached = await redisClient?.get(cacheKey);
+  const cached = await redisClient?.get(cacheKey);
   // return from cache
-  // if (cached) return JSON.parse(cached);
+  if (cached) return JSON.parse(cached);
 
   const isExist = await userRepository.findByEmail(email);
 
@@ -66,7 +83,7 @@ const getUserWithPermissions = async (email: string): Promise<IGetUserWithPermis
   }
 
   // store cache
-  // await redisClient?.set(cacheKey, JSON.stringify(user), { expiration: { type: "EX", value: 900 } });
+  await redisClient?.set(cacheKey, JSON.stringify(user), { expiration: { type: "EX", value: 900 } });
 
   return user
 }
@@ -75,5 +92,6 @@ export const userService = {
   getUsersFromDB,
   createUser,
   createAdmin,
-  getUserWithPermissions
+  getUserWithPermissions,
+  updateStatus
 };

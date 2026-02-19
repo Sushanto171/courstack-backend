@@ -1,5 +1,5 @@
 import { Role } from "../../../generated/prisma/enums";
-import { UserCreateInput, UserWhereInput } from "../../../generated/prisma/models";
+import { UserCreateInput, UserUpdateInput, UserWhereInput } from "../../../generated/prisma/models";
 import { prisma } from "../../config/prisma";
 
 interface FindAllOptions {
@@ -51,8 +51,19 @@ const findByEmail = (email: string, omitPassword = true) => {
   });
 };
 
+const updateByEmail = (email: string, payload: UserUpdateInput) => {
+  return prisma.user.update({
+    where: { email },
+    data: payload,
+    omit: {
+      password: true
+    }
+  })
+}
+
 export const userRepository = {
   create,
   findAll,
-  findByEmail
+  findByEmail,
+  updateByEmail
 };

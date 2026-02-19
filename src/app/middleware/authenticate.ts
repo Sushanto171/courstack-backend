@@ -25,7 +25,7 @@ const authenticate = async (req: Request, res: Response, next: NextFunction) => 
   } catch (error: any) {
 
     if (error.name === 'TokenExpiredError') {
-      throw new ApiError(httpStatus.UNAUTHORIZED, 'Token expired');
+      throw new ApiError(httpStatus.FORBIDDEN, 'Token expired');
     }
     if (error.name === 'JsonWebTokenError') {
       throw new ApiError(httpStatus.UNAUTHORIZED, 'Invalid token');
