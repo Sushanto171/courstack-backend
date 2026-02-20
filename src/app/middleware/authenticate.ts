@@ -13,6 +13,7 @@ import { decodedJWT } from "../utils/jwt";
 const authenticate = async (req: Request, res: Response, next: NextFunction) => {
   const token = req.cookies
   try {
+    
 
     const decoded = decodedJWT(token.accessToken, config.jwt.JWT_ACCESS_SECRET) as JwtPayload
 

@@ -1,10 +1,12 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Role, UserStatus } from "../../../generated/prisma/enums";
-import { UserCreateInput } from "../../../generated/prisma/models";
+import { UserCreateInput, UserUpdateInput } from "../../../generated/prisma/models";
 import { permissions } from "../../config/permissions";
 import redisClient from "../../config/redis";
 import { ApiError } from "../../helper/ApiError";
 import httpStatus from "../../helper/httpStatusCode";
 import { invalidateUserCache } from "../../helper/invalidateUserCache";
+import { IAuthUser } from "../../types";
 import { hashPassword } from "../../utils/bcrypt";
 import { userRepository } from "./user.repository";
 import { UpdateUserStatus } from "./user.validation";
@@ -59,6 +61,47 @@ const updateStatus = async (authRole: Role, payload: UpdateUserStatus) => {
   return res
 }
 
+const updateUser = async (
+  authUser: IAuthUser,
+  id: string,
+  payload: UserUpdateInput
+) => {
+  const isSuperAdmin = authUser.role === Role.SUPER_ADMIN;
+  const isOwner = authUser.id === id;
+
+  if (!isSuperAdmin && !isOwner) {
+    throw new ApiError(httpStatus.FORBIDDEN, "Forbidden");
+  }
+
+
+  const existingUser = await userRepository.findByID(id);
+
+  if (!existingUser) {
+    throw new ApiError(httpStatus.NOT_FOUND, "User not found");
+  }
+
+  // sanitize payload based on permission
+  let sanitizedPayload: UserUpdateInput;
+
+  if (isSuperAdmin) {
+
+    const { id: _, password, ...rest } = payload;
+    sanitizedPayload = rest;
+
+  } else {
+
+    // owner: allow only safe editable fields
+    const { name, photoURL, gender, phone } = payload;
+
+    sanitizedPayload = { name, photoURL, gender, phone };
+  }
+
+
+  const user = await userRepository.updateByEmail(existingUser.email, sanitizedPayload)
+
+  return user;
+};
+
 const getUserWithPermissions = async (email: string): Promise<IGetUserWithPermission> => {
 
   const cacheKey = `auth:user:${email}`;
@@ -93,5 +136,6 @@ export const userService = {
   createUser,
   createAdmin,
   getUserWithPermissions,
-  updateStatus
+  updateStatus,
+  updateUser
 };

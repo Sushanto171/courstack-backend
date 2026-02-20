@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { Role } from "../../../generated/prisma/enums";
 import httpStatus from "../../helper/httpStatusCode";
+import { IAuthUser } from "../../types";
 import catchAsync from "../../utils/catchAsync";
 import sendResponse from "../../utils/SendResponse";
 import { userService } from "./user.service";
@@ -26,6 +27,20 @@ const createUser = catchAsync(async (req, res) => {
     statusCode: httpStatus.CREATED,
     success: true,
     message: "User registered successfully",
+    data
+  })
+})
+
+const updateUser = catchAsync(async (req, res) => {
+  const id = req.params.id as string
+  // change profile photo
+  const photoURL = req?.file?.path;
+  const data = await userService.updateUser(req.user as IAuthUser, id, { ...req.body, photoURL })
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "User info updated successfully",
     data
   })
 })
@@ -60,5 +75,6 @@ export const userController = {
   getUsersFromDB,
   createUser,
   createAdmin,
-  updateStatus
+  updateStatus,
+  updateUser
 }

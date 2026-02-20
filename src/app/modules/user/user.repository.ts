@@ -51,6 +51,15 @@ const findByEmail = (email: string, omitPassword = true) => {
   });
 };
 
+const findByID = (id: string, omitPassword = true) => {
+  return prisma.user.findUnique({
+    where: { id },
+    omit: {
+      password: omitPassword
+    }
+  });
+};
+
 const updateByEmail = (email: string, payload: UserUpdateInput) => {
   return prisma.user.update({
     where: { email },
@@ -65,5 +74,6 @@ export const userRepository = {
   create,
   findAll,
   findByEmail,
-  updateByEmail
+  updateByEmail,
+  findByID
 };
