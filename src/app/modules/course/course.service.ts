@@ -3,6 +3,14 @@ import { IAuthUser } from "../../types";
 import { courseRepository } from "./course.repository";
 import { ICreateCourse } from "./course.validation";
 
+const getAll = async () => {
+  return courseRepository.getAll()
+}
+
+const getBySlug = async (slug: string) => {
+  return courseRepository.getBySlug(slug)
+}
+
 const create = async (authUser: IAuthUser, payload: ICreateCourse) => {
 
   const baseSlug = payload.title
@@ -23,7 +31,7 @@ const create = async (authUser: IAuthUser, payload: ICreateCourse) => {
       ? CourseStatus[payload.status as keyof typeof CourseStatus]
       : CourseStatus.DRAFT;
 
-      const { categoryId, ...rest } = payload
+  const { categoryId, ...rest } = payload
 
   return courseRepository.create({
     ...rest,
@@ -38,4 +46,4 @@ const create = async (authUser: IAuthUser, payload: ICreateCourse) => {
 }
 
 
-export const courseService = { create }
+export const courseService = { create, getAll, getBySlug }

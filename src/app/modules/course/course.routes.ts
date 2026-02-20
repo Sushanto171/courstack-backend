@@ -9,9 +9,11 @@ import { courseValidation } from "./course.validation";
 
 const router = Router()
 
+router.get("/", courseController.getAll)
+
+router.get("/:slug", courseController.getBySlug)
+
 router.use(authenticate)
-
-
 
 router.post("/", authorize(PERMISSIONS.COURSE_CREATE), upload.single("file"), validateRequest(courseValidation.createCourse), courseController.create)
 
