@@ -33,7 +33,9 @@ const createUser = catchAsync(async (req, res) => {
 
 const updateUser = catchAsync(async (req, res) => {
   const id = req.params.id as string
-  const data = await userService.updateUser(req.user as IAuthUser, id, req.body)
+  // change profile photo
+  const photoURL = req?.file?.path;
+  const data = await userService.updateUser(req.user as IAuthUser, id, { ...req.body, photoURL })
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
