@@ -36,6 +36,12 @@ export const PERMISSIONS = {
   COURSE_VIEW_OWN: 'course:view_own',
   COURSE_VIEW_ENROLLED: 'course:view_enrolled',
   COURSE_STATUS_UPDATE: 'course:status_update',
+  // Course
+  LESSON_CREATE: 'lesson:create',
+  LESSON_UPDATE: 'lesson:update_own',
+  LESSON_DELETE: 'lesson:delete_own',
+  LESSON_VIEW: 'lesson:view_own',
+  LESSON_STATUS_UPDATE: 'lesson:status_update',
 
   // Enrollment
   ENROLLMENT_JOIN: 'enrollment:join',
@@ -91,6 +97,7 @@ export const ROLE_PERMISSIONS = {
     PERMISSIONS.CATEGORY_VIEW,
     PERMISSIONS.ENROLLMENT_VIEW_STUDENTS,
     PERMISSIONS.USER_UPDATE,
+    PERMISSIONS.LESSON_CREATE,
   ],
 
   STUDENT: [

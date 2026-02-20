@@ -1,5 +1,5 @@
 import { CourseStatus } from "../../../generated/prisma/enums";
-import { CourseCreateInput, CourseUpdateInput, CourseWhereInput } from "../../../generated/prisma/models";
+import { CourseCreateInput, CourseUpdateInput, CourseWhereInput, CourseWhereUniqueInput } from "../../../generated/prisma/models";
 import { prisma } from "../../config/prisma";
 
 interface IGetAllOptions {
@@ -63,4 +63,8 @@ const softDeleteByID = (id: string,) => {
   return prisma.course.update({ where: { id }, data: { deletedAt: now } })
 }
 
-export const courseRepository = { create, getAll, getBySlug, updateById, softDeleteByID, getByID }
+const getOneCourse = (where: CourseWhereUniqueInput) => {
+  return prisma.course.findUnique({ where })
+}
+
+export const courseRepository = { create, getAll, getBySlug, updateById, softDeleteByID, getByID, getOneCourse }

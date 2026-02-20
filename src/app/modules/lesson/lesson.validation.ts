@@ -7,9 +7,7 @@ const lessonParams = z.object({
   lessonId: z.string('Lesson ID is required').uuid('Invalid lesson ID'),
 });
 
-const courseParams = z.object({
-  courseId: z.string('Course ID is required').uuid('Invalid course ID'),
-});
+
 
 
 const lessonVideo = z.object({
@@ -40,55 +38,52 @@ const lessonVideo = z.object({
 });
 
 
-const createLesson = z.object({
-  params: courseParams,
-  body: z
-    .object({
-      title: z
-        .string('Title is required')
-        .min(3, 'Title must be at least 3 characters')
-        .max(150, 'Title must not exceed 150 characters')
-        .trim(),
+const createLesson = z
+  .object({
+    title: z
+      .string('Title is required')
+      .min(3, 'Title must be at least 3 characters')
+      .max(150, 'Title must not exceed 150 characters')
+      .trim(),
 
-      order: z
-        .number('Order is required')
-        .int('Order must be an integer')
-        .min(1, 'Order must be at least 1'),
+    order: z
+      .number('Order is required')
+      .int('Order must be an integer')
+      .min(1, 'Order must be at least 1'),
 
-      isPreview: z
-        .boolean()
-        .default(false),
+    isPreview: z
+      .boolean()
+      .default(false),
 
-      text: z
-        .string()
-        .min(10, 'Text content must be at least 10 characters')
-        .max(50000, 'Text content must not exceed 50000 characters')
-        .optional(),
+    text: z
+      .string()
+      .min(10, 'Text content must be at least 10 characters')
+      .max(50000, 'Text content must not exceed 50000 characters')
+      .optional(),
 
-      // Videos uploaded to cloudinary first
-      // then send { url, duration } here
-      videos: z
-        .array(lessonVideo)
-        .min(1, 'At least one video required if videos provided')
-        .refine(
-          (videos) => {
-            const orders = videos.map((v) => v.order);
-            return new Set(orders).size === orders.length;
-          },
-          { message: 'Video order values must be unique' },
-        )
-        .optional(),
-    })
+    // Videos uploaded to cloudinary first
+    // then send { url, duration } here
+    videos: z
+      .array(lessonVideo)
+      .min(1, 'At least one video required if videos provided')
+      .refine(
+        (videos) => {
+          const orders = videos.map((v) => v.order);
+          return new Set(orders).size === orders.length;
+        },
+        { message: 'Video order values must be unique' },
+      )
+      .optional(),
+  })
+  // Must have text OR at least one video
+  .refine(
+    (data) => data.text || (data.videos && data.videos.length > 0),
+    {
+      message: 'Lesson must have text content or at least one video',
+      path: ['text'],
+    },
+  )
 
-    // Must have text OR at least one video
-    .refine(
-      (data) => data.text || (data.videos && data.videos.length > 0),
-      {
-        message: 'Lesson must have text content or at least one video',
-        path: ['text'],
-      },
-    ),
-});
 
 
 const updateLesson = z.object({
@@ -233,7 +228,7 @@ export const lessonValidation = {
   lessonVideo
 }
 
-export type ICreateLesson = z.infer<typeof createLesson>['body'];
+export type ICreateLesson = z.infer<typeof createLesson>;
 export type IUpdateLesson = z.infer<typeof updateLesson>['body'];
 export type IUpdateLessonStatus = z.infer<typeof updateLessonStatus>['body'];
 export type IAddLessonVideo = z.infer<typeof addLessonVideo>['body'];
