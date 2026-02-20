@@ -48,11 +48,11 @@ const createAdmin = async (payload: UserCreateInput) => {
 }
 
 const updateStatus = async (authRole: Role, payload: UpdateUserStatus) => {
-  const isExist = await userRepository.findByEmail(payload.email)
+  const isExist = await userRepository.findByEmail(payload.email);
 
   if (!isExist) throw new ApiError(httpStatus.NOT_FOUND, "User not found!");
 
-  if (authRole === Role.ADMIN && !(isExist.role === Role.INSTRUCTOR || isExist.role === Role.STUDENT)) throw new ApiError(httpStatus.UNAUTHORIZED, "UnAuthorized access!")
+  if (authRole === Role.ADMIN && !(isExist.role === Role.INSTRUCTOR || isExist.role === Role.STUDENT)) throw new ApiError(httpStatus.FORBIDDEN, "Forbidden access!")
 
   const res = await userRepository.updateByEmail(isExist.email, { status: payload.status as UserStatus });
 

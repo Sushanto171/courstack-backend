@@ -19,8 +19,6 @@ const create = (data: UserCreateInput) => {
   });
 };
 
-
-
 const findAll = (options: FindAllOptions) => {
 
   const { allowedRoles } = options;

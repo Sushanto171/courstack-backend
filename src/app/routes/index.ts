@@ -1,5 +1,7 @@
 import { Router } from "express";
 import { authRoutes } from "../modules/auth/auth.routes";
+import { categoryRoutes } from "../modules/category/category.routes";
+import { courseRoutes } from "../modules/course/course.routes";
 import { userRoutes } from "../modules/user/user.routes";
 
 interface Routes {
@@ -17,7 +19,15 @@ const routes: Routes[] = [
   {
     router: authRoutes,
     path: "/auth"
-  }
+  },
+  {
+    router: categoryRoutes,
+    path: "/category"
+  },
+  {
+    router: courseRoutes,
+    path: "/course"
+  },
 ];
 
 routes.forEach((route) => router.use(route.path, route.router));
