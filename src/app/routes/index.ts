@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { authRoutes } from "../modules/auth/auth.routes";
 import { categoryRoutes } from "../modules/category/category.routes";
+import { courseRoutes } from "../modules/course/course.routes";
 import { userRoutes } from "../modules/user/user.routes";
 
 interface Routes {
@@ -22,6 +23,10 @@ const routes: Routes[] = [
   {
     router: categoryRoutes,
     path: "/category"
+  },
+  {
+    router: courseRoutes,
+    path: "/course"
   },
 ];
 

@@ -1,6 +1,7 @@
 model Course {
   id              String       @id @default(uuid())
   title           String
+  slug            String
   thumbnail       String?
   price           Decimal      @default(0) @db.Decimal(10, 2)
   status          CourseStatus @default(DRAFT)
@@ -17,6 +18,7 @@ model Course {
   categoryId String
   category   Category @relation(fields: [categoryId], references: [id])
 
+  @@unique([slug])
   @@index([instructorId])
   @@index([categoryId])
   @@index([status])
