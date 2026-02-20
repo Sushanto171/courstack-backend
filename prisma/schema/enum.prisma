@@ -24,8 +24,10 @@ enum CourseStatus {
   ARCHIVED
 }
 
-
-
-
+enum LessonStatus {
+  DRAFT
+  SCHEDULED   
+  PUBLISHED
+}
 
 

@@ -18,6 +18,8 @@ model Course {
   categoryId String
   category   Category @relation(fields: [categoryId], references: [id])
 
+  lessons Lesson[]
+
   @@unique([slug])
   @@index([instructorId])
   @@index([categoryId])
