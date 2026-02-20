@@ -15,7 +15,7 @@ router.get("/my-courses", authenticate, authorize(PERMISSIONS.COURSE_VIEW_OWN, P
 
 router.get("/:slug", courseController.getBySlug)
 
-router.use(authenticate)
+router.use(authenticate);
 
 router.post("/", authorize(PERMISSIONS.COURSE_CREATE), upload.single("file"), validateRequest(courseValidation.createCourse), courseController.create);
 
