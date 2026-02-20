@@ -1,5 +1,6 @@
-import { CourseStatus } from "../../../generated/prisma/enums";
+import { CourseStatus, Role } from "../../../generated/prisma/enums";
 import { ApiError } from "../../helper/ApiError";
+import { formatCourseStatus } from "../../helper/format";
 import httpStatus from "../../helper/httpStatusCode";
 import { IAuthUser } from "../../types";
 import { courseRepository } from "./course.repository";
@@ -78,6 +79,49 @@ const update = async (authUser: IAuthUser, id: string, payload: IUpdateCourse) =
 
 }
 
+const updateStatus = async (authUser: IAuthUser, id: string, payload: { status: CourseStatus }) => {
+
+  const existingCourse = await courseRepository.getByID(id);
+
+  if (!existingCourse) throw new ApiError(httpStatus.NOT_FOUND, "Course dose not found!");
+
+  const canOverrideCourseStatus = authUser.role === Role.SUPER_ADMIN || authUser.role === Role.ADMIN;
+
+  // verify course owner
+  const isOwner = existingCourse.instructorId === authUser.id;
+
+  // bypass admin and super admin
+  if (!canOverrideCourseStatus && !isOwner) throw new ApiError(httpStatus.FORBIDDEN, "Forbidden!");
+
+  // instructor can't directly set course status as PUBLISHED or ARCHIVED
+  if (isOwner && !canOverrideCourseStatus && (
+    payload.status === CourseStatus.PUBLISHED ||
+    payload.status === CourseStatus.ARCHIVED
+  )
+  ) {
+    throw new ApiError(
+      httpStatus.NOT_ACCEPTABLE,
+      `${formatCourseStatus(payload.status)} status cannot be set directly by instructors`
+    );
+  }
+
+  // instructor can't update published or archived course status
+  if (isOwner && !canOverrideCourseStatus && (
+    existingCourse.status === CourseStatus.ARCHIVED ||
+    existingCourse.status === CourseStatus.PUBLISHED
+  )
+  ) {
+    throw new ApiError(
+      httpStatus.NOT_ACCEPTABLE,
+      `${formatCourseStatus(existingCourse.status)} courses cannot be modified by instructors`
+    );
+  }
+
+  const status = payload.status;
+
+  return courseRepository.updateById(id, { status })
+
+}
 
 const softDelete = async (authUser: IAuthUser, id: string) => {
 
@@ -96,6 +140,4 @@ const softDelete = async (authUser: IAuthUser, id: string) => {
 
 
 
-
-
-export const courseService = { create, getAll, getBySlug, update, getMyCourses, softDelete }
+export const courseService = { create, getAll, getBySlug, update, getMyCourses, updateStatus, softDelete }

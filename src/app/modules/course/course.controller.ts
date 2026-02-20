@@ -78,6 +78,23 @@ const update = catchAsync(async (req, res) => {
 })
 
 
+const updateStatus = catchAsync(async (req, res) => {
+
+  const id = req.params.id as string
+
+  if (!id) throw new ApiError(httpStatus.BAD_REQUEST, "Invalid course id.")
+
+  const data = await courseService.updateStatus(req.user as IAuthUser, id, req.body)
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Status updated successfully",
+    data
+  })
+})
+
+
 const softDelete = catchAsync(async (req, res) => {
 
   const id = req.params.id as string
@@ -95,4 +112,4 @@ const softDelete = catchAsync(async (req, res) => {
 })
 
 
-export const courseController = { getAll, getBySlug, create, update, getMyCourses, softDelete }
+export const courseController = { getAll, getBySlug, create, update, updateStatus, getMyCourses, softDelete }

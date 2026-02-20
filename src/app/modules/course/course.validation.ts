@@ -26,7 +26,7 @@ const createCourse = z.object({
     .min(0, 'Duration Minutes cannot be negative')
     .max(99999, 'Duration Minutes must not exceed 99999')
     .default(0),
-  status: z.enum(Object.keys(CourseStatus), "Status must be have 'DRAFT or PUBLISHED or ARCHIVED' ").default(CourseStatus.DRAFT).optional(),
+  status: z.enum([CourseStatus.DRAFT, CourseStatus.PENDING_REVIEW], "Invalid course status. Allowed values: DRAFT, PUBLISHED").optional(),
 
   categoryId: z
     .string('Category is required')
@@ -62,13 +62,13 @@ const updateCourse = z.object({
   categoryId: z
     .string('Category is required')
     .uuid('Invalid category ID'),
-  status: z.enum(Object.keys(CourseStatus), "Status must be have 'DRAFT or PUBLISHED or ARCHIVED' ").default(CourseStatus.DRAFT).optional(),
+  status: z.enum([CourseStatus.DRAFT, CourseStatus.PENDING_REVIEW], "Invalid course status. Allowed values: DRAFT, PENDING_REVIEW").optional(),
 });
 
 const updateCourseStatus = z.object({
   status: z.enum(
     Object.keys(CourseStatus),
-    'Status is required'),
+    'Invalid course status. Allowed values: DRAFT, PUBLISHED, ARCHIVED, PENDING_REVIEW'),
 });
 
 

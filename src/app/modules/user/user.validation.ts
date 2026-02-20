@@ -40,7 +40,7 @@ const updateUser = z.object({
   role: z.enum([Role.STUDENT, Role.INSTRUCTOR]).optional(),
   gender: z.enum(Object.keys(Gender)).optional(),
   phone: bdPhoneSchema.optional(),
-  status: z.enum(Object.keys(UserStatus)).optional()
+  // status: z.enum(Object.keys(UserStatus)).optional()
 })
 
 const updateUserStatusSchema = z.object({
