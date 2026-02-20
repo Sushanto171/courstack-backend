@@ -1,14 +1,52 @@
-import { CourseCreateInput, CourseUpdateInput } from "../../../generated/prisma/models"
-import { prisma } from "../../config/prisma"
+import { CourseCreateInput, CourseUpdateInput, CourseWhereInput } from "../../../generated/prisma/models";
+import { prisma } from "../../config/prisma";
+
+interface IGetAllOptions {
+  instructorId?: string,
+  isDeleted?: boolean,
+  takeInstructorInfo?: boolean
+}
+
+const getAll = (options: IGetAllOptions) => {
+  const { instructorId, isDeleted = false, takeInstructorInfo = true } = options;
+
+  const where: CourseWhereInput = {
+    deletedAt: isDeleted ? { not: null } : null,
+    ...(instructorId && { instructorId })
+  }
+
+  return prisma.course.findMany(
+    {
+      where,
+      include: takeInstructorInfo ?
+        {
+          instructor: {
+            select: {
+              id: true,
+              name: true,
+              photoURL: true
+            }
+          }
+        } : undefined
+    }
+  )
+}
 
 const create = (data: CourseCreateInput) => {
   return prisma.course.create({ data })
 }
-const getAll = () => {
-  return prisma.course.findMany()
-}
 const getBySlug = (slug: string) => {
-  return prisma.course.findUnique({ where: { slug } })
+  return prisma.course.findUnique({
+    where: { slug }, include: {
+      instructor: {
+        select: {
+          id: true,
+          name: true,
+          photoURL: true
+        }
+      }
+    }
+  })
 }
 
 const getByID = (id: string) => {

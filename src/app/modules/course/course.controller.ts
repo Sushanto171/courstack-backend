@@ -33,6 +33,18 @@ const getBySlug = catchAsync(async (req, res) => {
   })
 })
 
+const getMyCourses = catchAsync(async (req, res) => {
+
+  const data = await courseService.getMyCourses(req.user as IAuthUser)
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: data.length ? "Course retrieved successfully" : "Course not found!",
+    data
+  })
+})
+
 const create = catchAsync(async (req, res) => {
 
   const thumbnail = req?.file?.path;
@@ -66,4 +78,21 @@ const update = catchAsync(async (req, res) => {
 })
 
 
-export const courseController = { getAll, getBySlug, create, update }
+const softDelete = catchAsync(async (req, res) => {
+
+  const id = req.params.id as string
+
+  if (!id) throw new ApiError(httpStatus.BAD_REQUEST, "Invalid course id.")
+
+  await courseService.softDelete(req.user as IAuthUser, id,)
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Course Deleted successfully",
+    data: null
+  })
+})
+
+
+export const courseController = { getAll, getBySlug, create, update, getMyCourses, softDelete }
