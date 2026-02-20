@@ -15,7 +15,7 @@ const getBySlug = async (slug: string) => {
 }
 
 const getMyCourses = async (authUser: IAuthUser) => {
-  return courseRepository.getAll({ instructorId: authUser.id, takeInstructorInfo: false })
+  return courseRepository.getAll({ instructorId: authUser.id, takeInstructorInfo: false, takeDraftCourse: true })
 }
 
 const create = async (authUser: IAuthUser, payload: ICreateCourse) => {
@@ -90,7 +90,7 @@ const updateStatus = async (authUser: IAuthUser, id: string, payload: { status: 
   // verify course owner
   const isOwner = existingCourse.instructorId === authUser.id;
 
-  // bypass admin and super admin
+  // bypass admin or super admin
   if (!canOverrideCourseStatus && !isOwner) throw new ApiError(httpStatus.FORBIDDEN, "Forbidden!");
 
   // instructor can't directly set course status as PUBLISHED or ARCHIVED

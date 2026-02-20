@@ -1,17 +1,20 @@
+import { CourseStatus } from "../../../generated/prisma/enums";
 import { CourseCreateInput, CourseUpdateInput, CourseWhereInput } from "../../../generated/prisma/models";
 import { prisma } from "../../config/prisma";
 
 interface IGetAllOptions {
   instructorId?: string,
   isDeleted?: boolean,
-  takeInstructorInfo?: boolean
+  takeInstructorInfo?: boolean,
+  takeDraftCourse?: boolean
 }
 
 const getAll = (options: IGetAllOptions) => {
-  const { instructorId, isDeleted = false, takeInstructorInfo = true } = options;
+  const { instructorId, isDeleted = false, takeInstructorInfo = true, takeDraftCourse = false } = options;
 
   const where: CourseWhereInput = {
     deletedAt: isDeleted ? { not: null } : null,
+    status: takeDraftCourse ? undefined : { not: CourseStatus.DRAFT },
     ...(instructorId && { instructorId })
   }
 
