@@ -16,3 +16,9 @@ enum Gender {
   FEMALE
   OTHER
 }
+
+enum CourseStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
