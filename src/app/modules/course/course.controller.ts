@@ -35,7 +35,9 @@ const getBySlug = catchAsync(async (req, res) => {
 
 const create = catchAsync(async (req, res) => {
 
-  const data = await courseService.create(req.user as IAuthUser, req.body)
+  const thumbnail = req?.file?.path;
+
+  const data = await courseService.create(req.user as IAuthUser, { ...req.body, thumbnail })
 
   sendResponse(res, {
     statusCode: httpStatus.CREATED,
@@ -45,5 +47,23 @@ const create = catchAsync(async (req, res) => {
   })
 })
 
+const update = catchAsync(async (req, res) => {
 
-export const courseController = { getAll, getBySlug, create }
+  const thumbnail = req?.file?.path;
+
+  const id = req.params.id as string
+
+  if (!id) throw new ApiError(httpStatus.BAD_REQUEST, "Invalid course id.")
+
+  const data = await courseService.update(req.user as IAuthUser, id, { ...req.body, thumbnail })
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Course updated successfully",
+    data
+  })
+})
+
+
+export const courseController = { getAll, getBySlug, create, update }

@@ -62,10 +62,8 @@ const updateCourse = z.object({
   categoryId: z
     .string('Category is required')
     .uuid('Invalid category ID'),
-}).refine(
-  (data) => Object.keys(data).length > 0,
-  { message: 'At least one field must be provided' }
-);
+  status: z.enum(Object.keys(CourseStatus), "Status must be have 'DRAFT or PUBLISHED or ARCHIVED' ").default(CourseStatus.DRAFT).optional(),
+});
 
 const updateCourseStatus = z.object({
   status: z.enum(

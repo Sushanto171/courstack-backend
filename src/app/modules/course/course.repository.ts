@@ -10,6 +10,10 @@ const getAll = () => {
 const getBySlug = (slug: string) => {
   return prisma.course.findUnique({ where: { slug } })
 }
+
+const getByID = (id: string) => {
+  return prisma.course.findUnique({ where: { id } })
+}
 const updateById = (id: string, data: CourseUpdateInput) => {
   return prisma.course.update({ where: { id }, data })
 }
@@ -18,4 +22,4 @@ const softDeleteByID = (id: string,) => {
   return prisma.course.update({ where: { id }, data: { deletedAt: now } })
 }
 
-export const courseRepository = { create, getAll, getBySlug, updateById, softDeleteByID }
+export const courseRepository = { create, getAll, getBySlug, updateById, softDeleteByID, getByID }

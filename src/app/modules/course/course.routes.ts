@@ -15,6 +15,8 @@ router.get("/:slug", courseController.getBySlug)
 
 router.use(authenticate)
 
-router.post("/", authorize(PERMISSIONS.COURSE_CREATE), upload.single("file"), validateRequest(courseValidation.createCourse), courseController.create)
+router.post("/", authorize(PERMISSIONS.COURSE_CREATE), upload.single("file"), validateRequest(courseValidation.createCourse), courseController.create);
+
+router.patch("/:id", authorize(PERMISSIONS.COURSE_UPDATE_OWN), upload.single("file"), validateRequest(courseValidation.createCourse), courseController.update);
 
 export const courseRoutes = router
