@@ -36,7 +36,8 @@ const seedSuperAdmin = async () => {
         email,
         password: hashedPassword,
         status: 'ACTIVE',
-        role: "SUPER_ADMIN"
+        role: "SUPER_ADMIN",
+        isVerified: true
       },
       omit: {
         password: true,

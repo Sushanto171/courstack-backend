@@ -4,6 +4,8 @@ model User {
   email              String     @unique
   password           String
   photoURL           String?
+  phone              String?
+  isVerified         Boolean    @default(false)
   role               Role       @default(STUDENT)
   gender             Gender?
   status             UserStatus @default(ACTIVE)
