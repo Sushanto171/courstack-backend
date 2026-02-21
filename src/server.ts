@@ -16,7 +16,7 @@ const startServer = async () => {
 
     await seedSuperAdmin()
 
-    await redisClient.connect();
+    // await redisClient.connect();
     console.log("📤 Redis connection established!");
 
     // Function to gracefully shut down the server

@@ -6,6 +6,15 @@ import { IAuthUser } from "../../types";
 import { courseRepository } from "./course.repository";
 import { ICreateCourse, IUpdateCourse } from "./course.validation";
 
+const verifyCourseExist = async (courseId: string) => {
+  const existingCourse = await courseRepository.getByID(courseId)
+
+  if (!existingCourse) throw new ApiError(httpStatus.NOT_FOUND, "Course dose not found!");
+
+  return existingCourse;
+}
+
+
 const getAll = async () => {
   return courseRepository.getAll({})
 }
@@ -54,9 +63,7 @@ const create = async (authUser: IAuthUser, payload: ICreateCourse) => {
 
 const update = async (authUser: IAuthUser, id: string, payload: IUpdateCourse) => {
 
-  const existingCourse = await courseRepository.getByID(id)
-
-  if (!existingCourse) throw new ApiError(httpStatus.NOT_FOUND, "Course dose not found!");
+  const existingCourse = await verifyCourseExist(id)
 
   const isOwner = existingCourse.instructorId === authUser.id;
 
@@ -81,9 +88,7 @@ const update = async (authUser: IAuthUser, id: string, payload: IUpdateCourse) =
 
 const updateStatus = async (authUser: IAuthUser, id: string, payload: { status: CourseStatus }) => {
 
-  const existingCourse = await courseRepository.getByID(id);
-
-  if (!existingCourse) throw new ApiError(httpStatus.NOT_FOUND, "Course dose not found!");
+  const existingCourse = await verifyCourseExist(id)
 
   const canOverrideCourseStatus = authUser.role === Role.SUPER_ADMIN || authUser.role === Role.ADMIN;
 
@@ -125,9 +130,7 @@ const updateStatus = async (authUser: IAuthUser, id: string, payload: { status: 
 
 const softDelete = async (authUser: IAuthUser, id: string) => {
 
-  const existingCourse = await courseRepository.getByID(id)
-
-  if (!existingCourse) throw new ApiError(httpStatus.NOT_FOUND, "Course dose not found!");
+  const existingCourse = await verifyCourseExist(id)
 
   const isOwner = existingCourse.instructorId === authUser.id;
 
@@ -140,4 +143,4 @@ const softDelete = async (authUser: IAuthUser, id: string) => {
 
 
 
-export const courseService = { create, getAll, getBySlug, update, getMyCourses, updateStatus, softDelete }
+export const courseService = { verifyCourseExist, create, getAll, getBySlug, update, getMyCourses, updateStatus, softDelete }

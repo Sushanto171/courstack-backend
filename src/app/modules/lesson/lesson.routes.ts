@@ -10,7 +10,14 @@ const router = Router({ mergeParams: true })
 
 router.use(authenticate);
 
-router.post("/", validateRequest(lessonValidation.createLesson), authorize(PERMISSIONS.LESSON_CREATE), lessonController.create)
+router.get("/", authorize(PERMISSIONS.LESSON_VIEW), lessonController.getLessonsByCourseId);
+
+router.get("/:lessonId", authorize(PERMISSIONS.LESSON_VIEW), lessonController.getLessonsByCourseId);
+
+router.post("/", validateRequest(lessonValidation.createLesson), authorize(PERMISSIONS.LESSON_CREATE), lessonController.create);
+
+
+router.patch("/:lessonId", validateRequest(lessonValidation.updateLesson), authorize(PERMISSIONS.LESSON_UPDATE), lessonController.updateByLessonId)
 
 
 export const lessonRoutes = router

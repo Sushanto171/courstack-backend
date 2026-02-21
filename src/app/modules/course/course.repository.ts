@@ -38,6 +38,7 @@ const getAll = (options: IGetAllOptions) => {
 const create = (data: CourseCreateInput) => {
   return prisma.course.create({ data })
 }
+
 const getBySlug = (slug: string) => {
   return prisma.course.findUnique({
     where: { slug },
@@ -48,8 +49,7 @@ const getBySlug = (slug: string) => {
           name: true,
           photoURL: true
         }
-      },
-      lessons: true
+      }
     }
   })
 }

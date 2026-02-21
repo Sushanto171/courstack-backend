@@ -1,7 +1,10 @@
+import { LessonSelect, LessonUpdateInput, LessonWhereInput } from "../../../generated/prisma/models";
 import { prisma } from "../../config/prisma";
 import { ICreateLesson } from "./lesson.validation";
 
-
+const getLessonsByCourseId = (where: LessonWhereInput, select: LessonSelect) => {
+  return prisma.lesson.findFirst({ where, select, orderBy: { order: "asc" } })
+}
 
 const create = async (courseId: string, payload: ICreateLesson) => {
   const { title, isPreview, order, text, videos } = payload;
@@ -13,11 +16,11 @@ const create = async (courseId: string, payload: ICreateLesson) => {
     })
 
     if (orderConflict) {
-    const res= await tnx.lesson.updateMany({
+      const res = await tnx.lesson.updateMany({
         where: { courseId, order: { gte: order } },
         data: { order: { increment: +1 } }
       })
-      console.log({res});
+      console.log({ res });
     }
     // create lesson
     const lesson = await tnx.lesson.create({
@@ -74,5 +77,9 @@ const create = async (courseId: string, payload: ICreateLesson) => {
 
 }
 
+const updateById = (lessonId: string, courseId: string, data: LessonUpdateInput) => {
+  return prisma.lesson.update({ where: { courseId, id: lessonId, }, data })
+}
 
-export const lessonRepository = { create, }
+
+export const lessonRepository = { create, getLessonsByCourseId, updateById}
