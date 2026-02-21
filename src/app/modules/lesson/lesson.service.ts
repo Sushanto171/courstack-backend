@@ -1,9 +1,10 @@
-import { LessonStatus } from "../../../generated/prisma/enums"
+import { LessonStatus, Role } from "../../../generated/prisma/enums"
 import { ApiError } from "../../helper/ApiError"
 import httpStatus from "../../helper/httpStatusCode"
 import { IAuthUser } from "../../types"
 import { courseRepository } from "../course/course.repository"
 import { courseService } from "../course/course.service"
+import { enrollService } from "../enrollment/enrollment.service"
 import { lessonRepository } from "./lesson.repository"
 import { ICreateLesson, IUpdateLesson } from "./lesson.validation"
 
@@ -62,8 +63,10 @@ const getOneLessonByLessonId = async (authUser: IAuthUser, courseId: string, les
   const existingCourse = await courseService.verifyCourseExist(courseId);
 
   const isOwner = existingCourse.instructorId === authUser.id;
+  const canAccessWithoutEnrollment = authUser.role === Role.SUPER_ADMIN || authUser.role === Role.ADMIN;
 
-  return await lessonRepository.getLessonsByCourseId({
+
+  const lesson = await lessonRepository.getLessonsByCourseId({
     courseId,
     status: isOwner ? undefined : LessonStatus.PUBLISHED,
     id: lessonId
@@ -84,6 +87,17 @@ const getOneLessonByLessonId = async (authUser: IAuthUser, courseId: string, les
     },
   },
   )
+  if (!lesson) throw new ApiError(httpStatus.NOT_FOUND, "Lesson not found");
+
+  if (isOwner || canAccessWithoutEnrollment) return lesson;
+
+  if (lesson.isPreview) return lesson;
+
+
+  await enrollService.verifyEnrolled(courseId, authUser.id);
+
+  return lesson;
+
 }
 
 const create = async (authUser: IAuthUser, courseId: string, payload: ICreateLesson) => {
