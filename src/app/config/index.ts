@@ -27,5 +27,12 @@ export default {
     CLOUD_NAME: process.env.CLOUD_NAME,
     CLOUD_API_KEY: process.env.CLOUD_API_KEY,
     CLOUD_API_SECRET: process.env.CLOUD_API_SECRET,
-  }
+  },
+  ssl: {
+    SSLC_STORE_ID: process.env.SSLC_STORE_ID as string,
+    SSLC_STORE_PASSWORD: process.env.SSLC_STORE_PASSWORD as string,
+    SSLC_BASE_URL: process.env.SSLC_BASE_URL as string,
+  },
+  BACKEND_URL: process.env.BACKEND_URL,
+  FRONTEND_URL: process.env.FRONTEND_URL,
 }

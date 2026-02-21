@@ -2,8 +2,10 @@ import { Router } from "express";
 import { authRoutes } from "../modules/auth/auth.routes";
 import { categoryRoutes } from "../modules/category/category.routes";
 import { courseRoutes } from "../modules/course/course.routes";
-import { userRoutes } from "../modules/user/user.routes";
+import { enrollmentRoutes } from "../modules/enrollment/enrollment.routes";
 import { lessonRoutes } from "../modules/lesson/lesson.routes";
+import { paymentRoutes } from "../modules/payment/payment.routes";
+import { userRoutes } from "../modules/user/user.routes";
 
 interface Routes {
   router: Router;
@@ -32,6 +34,14 @@ const routes: Routes[] = [
   {
     router: lessonRoutes,
     path: "/course/:courseId/lessons"
+  },
+  {
+    router: enrollmentRoutes,
+    path: "/enrollment"
+  },
+  {
+    router: paymentRoutes,
+    path: "/payment"
   },
 ];
 

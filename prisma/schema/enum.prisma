@@ -33,6 +33,7 @@ enum LessonStatus {
 
 enum EnrollmentStatus {
   ACTIVE
+  UNPAID
   COMPLETED
   DROPPED
 }
