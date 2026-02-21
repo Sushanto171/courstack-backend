@@ -25,6 +25,4 @@ router.patch("/:id", authorize(PERMISSIONS.COURSE_UPDATE_OWN), upload.single("fi
 
 router.delete("/soft/:id", authorize(PERMISSIONS.COURSE_DELETE_OWN), courseController.softDelete);
 
-
-
 export const courseRoutes = router

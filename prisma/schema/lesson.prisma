@@ -10,9 +10,12 @@ model Lesson {
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
 
-  courseId     String
-  course       Course        @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  lessonVideos LessonVideo[]
+  courseId        String
+  course          Course           @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lessonVideos    LessonVideo[]
+  lessonsProgress LessonProgress[]
+
+  
 
   @@index([courseId])
   @@index([order])
