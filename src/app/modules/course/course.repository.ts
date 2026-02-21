@@ -40,14 +40,16 @@ const create = (data: CourseCreateInput) => {
 }
 const getBySlug = (slug: string) => {
   return prisma.course.findUnique({
-    where: { slug }, include: {
+    where: { slug },
+    include: {
       instructor: {
         select: {
           id: true,
           name: true,
           photoURL: true
         }
-      }
+      },
+      lessons: true
     }
   })
 }
@@ -63,7 +65,8 @@ const softDeleteByID = (id: string,) => {
   return prisma.course.update({ where: { id }, data: { deletedAt: now } })
 }
 
-const getOneCourse = (where: CourseWhereUniqueInput) => {
+const getOneCourse = (where: CourseWhereUniqueInput
+) => {
   return prisma.course.findUnique({ where })
 }
 

@@ -5,6 +5,7 @@ import express, { Application } from "express"
 import { globalError } from "./app/middleware/globalError"
 import { notFound } from "./app/middleware/notFound"
 import router from "./app/routes"
+import { cronJob } from "./app/jobs"
 
 dotenv.config();
 
@@ -15,7 +16,9 @@ app.use(cookieParser())
 app.use(cors())
 app.use(express.urlencoded({ extended: true }));
 
-app.use("/api/v1", router)
+app.use("/api/v1", router);
+
+ cronJob()
 
 app.get("/", (req, res) => {
   const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
