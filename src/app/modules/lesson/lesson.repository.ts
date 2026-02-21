@@ -16,11 +16,10 @@ const create = async (courseId: string, payload: ICreateLesson) => {
     })
 
     if (orderConflict) {
-      const res = await tnx.lesson.updateMany({
+      await tnx.lesson.updateMany({
         where: { courseId, order: { gte: order } },
         data: { order: { increment: +1 } }
       })
-      console.log({ res });
     }
     // create lesson
     const lesson = await tnx.lesson.create({
@@ -81,5 +80,8 @@ const updateById = (lessonId: string, courseId: string, data: LessonUpdateInput)
   return prisma.lesson.update({ where: { courseId, id: lessonId, }, data })
 }
 
+const deleteOne = (lessonId: string, courseId: string,) => {
+  return prisma.lesson.delete({ where: { courseId, id: lessonId, } })
+}
 
-export const lessonRepository = { create, getLessonsByCourseId, updateById}
+export const lessonRepository = { create, getLessonsByCourseId, updateById, deleteOne }

@@ -37,11 +37,14 @@ const getLessonsByCourseId = async (authUser: IAuthUser, courseId: string) => {
       order: true,
       isPreview: true,
       title: true,
+      courseId: true,
+      status: true,
       lessonVideos: {
         select: {
           id: true,
           title: true,
-          duration: true
+          duration: true,
+          order: true
         },
         orderBy: {
           order: "asc"
@@ -69,9 +72,11 @@ const getOneLessonByLessonId = async (authUser: IAuthUser, courseId: string, les
     order: true,
     isPreview: true,
     title: true,
+    courseId: true,
+    status: true,
     lessonVideos: {
-      select: {
-        url: true
+      omit: {
+        lessonId: true,
       },
       orderBy: {
         order: "asc"
@@ -90,8 +95,23 @@ const create = async (authUser: IAuthUser, courseId: string, payload: ICreateLes
 
 
 const updateLessonByLessonId = async (authUser: IAuthUser, courseId: string, lessonId: string, payload: IUpdateLesson) => {
+
   await verifyCourseOwnership(authUser.id, courseId);
   return await lessonRepository.updateById(lessonId, courseId, payload)
 }
 
-export const lessonService = { create, getLessonsByCourseId, getOneLessonByLessonId, updateLessonByLessonId, }
+const updateLessonStatusByLessonId = async (authUser: IAuthUser, courseId: string, lessonId: string, payload: { status: LessonStatus }) => {
+
+  await verifyCourseOwnership(authUser.id, courseId);
+  return await lessonRepository.updateById(lessonId, courseId, { status: payload.status })
+}
+
+const deleteLessonByLessonId = async (authUser: IAuthUser, courseId: string, lessonId: string) => {
+
+  await verifyCourseOwnership(authUser.id, courseId);
+  return await lessonRepository.deleteOne(lessonId, courseId,)
+}
+
+
+
+export const lessonService = { create, getLessonsByCourseId, getOneLessonByLessonId, updateLessonByLessonId, updateLessonStatusByLessonId, deleteLessonByLessonId }

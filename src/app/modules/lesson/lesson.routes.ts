@@ -12,12 +12,16 @@ router.use(authenticate);
 
 router.get("/", authorize(PERMISSIONS.LESSON_VIEW), lessonController.getLessonsByCourseId);
 
-router.get("/:lessonId", authorize(PERMISSIONS.LESSON_VIEW), lessonController.getLessonsByCourseId);
+router.get("/:lessonId", authorize(PERMISSIONS.LESSON_VIEW), lessonController.getOneLessonByLessonId);
 
 router.post("/", validateRequest(lessonValidation.createLesson), authorize(PERMISSIONS.LESSON_CREATE), lessonController.create);
 
 
-router.patch("/:lessonId", validateRequest(lessonValidation.updateLesson), authorize(PERMISSIONS.LESSON_UPDATE), lessonController.updateByLessonId)
+router.patch("/:lessonId/status", validateRequest(lessonValidation.updateLessonStatus), authorize(PERMISSIONS.LESSON_UPDATE), lessonController.updateLessonStatusByLessonId)
+
+router.patch("/:lessonId", validateRequest(lessonValidation.updateLesson), authorize(PERMISSIONS.LESSON_UPDATE), lessonController.updateByLessonId);
+
+router.delete("/:lessonId", authorize(PERMISSIONS.LESSON_DELETE), lessonController.deleteOne)
 
 
 export const lessonRoutes = router

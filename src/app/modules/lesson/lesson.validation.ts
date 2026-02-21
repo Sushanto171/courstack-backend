@@ -87,48 +87,34 @@ const createLesson = z
 
 
 const updateLesson = z.object({
-  params: lessonParams,
+  title: z
+    .string()
+    .min(3, 'Title must be at least 3 characters')
+    .max(150, 'Title must not exceed 150 characters')
+    .trim()
+    .optional(),
 
-  body: z
-    .object({
-      title: z
-        .string()
-        .min(3, 'Title must be at least 3 characters')
-        .max(150, 'Title must not exceed 150 characters')
-        .trim()
-        .optional(),
+  order: z
+    .number()
+    .int('Order must be an integer')
+    .min(1, 'Order must be at least 1')
+    .optional(),
 
-      order: z
-        .number()
-        .int('Order must be an integer')
-        .min(1, 'Order must be at least 1')
-        .optional(),
+  isPreview: z
+    .boolean()
+    .optional(),
 
-      isPreview: z
-        .boolean()
-        .optional(),
+  text: z
+    .string()
+    .min(10, 'Text content must be at least 10 characters')
+    .max(50000, 'Text content must not exceed 50000 characters')
+    .optional(),
+})
 
-      text: z
-        .string()
-        .min(10, 'Text content must be at least 10 characters')
-        .max(50000, 'Text content must not exceed 50000 characters')
-        .optional(),
-    })
-
-    // At least one field must be provided
-    .refine(
-      (data) => Object.keys(data).length > 0,
-      { message: 'At least one field must be provided' },
-    ),
-});
 
 
 const updateLessonStatus = z.object({
-  params: lessonParams,
-
-  body: z
-    .object({
-      status: z.enum(Object.keys(LessonStatus), 'Status is required'),
+      status: z.enum(Object.keys(LessonStatus), "Invalid status! allowed status : DRAFT, SCHEDULED, PUBLISHED"),
 
       // Required only when status is SCHEDULED
       scheduledAt: z
@@ -136,7 +122,6 @@ const updateLessonStatus = z.object({
         .datetime({ message: 'scheduledAt must be a valid ISO datetime' })
         .optional(),
     })
-
     // scheduledAt required when SCHEDULED
     .refine(
       (data) => {
@@ -148,7 +133,6 @@ const updateLessonStatus = z.object({
         path: ['scheduledAt'],
       },
     )
-
     // scheduledAt must be future date
     .refine(
       (data) => {
@@ -173,8 +157,8 @@ const updateLessonStatus = z.object({
         message: 'scheduledAt is only allowed when status is SCHEDULED',
         path: ['scheduledAt'],
       },
-    ),
-});
+    )
+
 
 
 
@@ -229,8 +213,8 @@ export const lessonValidation = {
 }
 
 export type ICreateLesson = z.infer<typeof createLesson>;
-export type IUpdateLesson = z.infer<typeof updateLesson>['body'];
-export type IUpdateLessonStatus = z.infer<typeof updateLessonStatus>['body'];
+export type IUpdateLesson = z.infer<typeof updateLesson>
+export type IUpdateLessonStatus = z.infer<typeof updateLessonStatus>;
 export type IAddLessonVideo = z.infer<typeof addLessonVideo>['body'];
 export type IUpdateLessonVideo = z.infer<typeof updateLessonVideo>['body'];
 export type ILessonVideo = z.infer<typeof lessonVideo>;
