@@ -9,6 +9,14 @@ import { paymentService } from "../payment/payment.service";
 import { enrollRepository } from "./enrollment.repository";
 import { IEnroll } from "./enrollment.validation";
 
+const verifyEnrolled = async (courseId: string, studentId: string) => {
+  const existingEnroll = await enrollRepository.getOne({ studentId_courseId: { courseId, studentId }, status: EnrollmentStatus.ACTIVE });
+
+  if (!existingEnroll) throw new ApiError(httpStatus.PAYMENT_REQUIRED, `Access denied: Student ${studentId} is not enrolled in course ${courseId}.`
+  );
+  return existingEnroll
+}
+
 const create = async (authUser: IAuthUser, payload: IEnroll) => {
 
   const course = await courseService.verifyCourseExist(payload.courseId);
@@ -107,13 +115,71 @@ const create = async (authUser: IAuthUser, payload: IEnroll) => {
 
 }
 
-const verifyEnrolled = async (courseId: string, studentId: string) => {
-  const existingEnroll = await enrollRepository.getOne({ studentId_courseId: { courseId, studentId }, status: EnrollmentStatus.ACTIVE });
+const getEnrollmentsByCourseId = async (authUser: IAuthUser, courseId: string) => {
 
-  if (!existingEnroll) throw new ApiError(httpStatus.PAYMENT_REQUIRED, `Access denied: Student ${studentId} is not enrolled in course ${courseId}.`
-  );
-  return existingEnroll
+  const data = await prisma.course.findFirst({
+    where: { id: courseId, instructorId: authUser.id },
+    select: {
+      id: true,
+      category: {
+        select: {
+          name: true
+        }
+      },
+      title: true,
+      overview: true,
+      price: true,
+      slug: true,
+      _count: {
+        select: {
+          enrollments: true,
+        }
+      },
+      enrollments: {
+        omit: {
+          courseId: true,
+        },
+        select: {
+          student: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              phone: true,
+              photoURL: true
+            }
+          }
+        }
+      },
+    }
+  })
+  if (!data) return null;
+
+  const { _count, category, enrollments, ...rest } = data
+  return {
+    ...rest,
+    category: category.name,
+    totalEnrollments: _count.enrollments,
+    enrolledStudents: enrollments.map((s) => s.student)
+  }
+}
+
+const getEnrolledByStudentId = async (authUser: IAuthUser) => {
+  const data = await enrollRepository.getMany(authUser.id)
+
+  return data.map(({ _count, course, ...enroll }) => {
+    const { _count: totalLessons, category, ...rest } = course
+    return {
+      ...enroll,
+      lessonProgressCount: _count.lessonProgress,
+      courseDetails: {
+        totalLessons: totalLessons.lessons,
+        category: category.name,
+        ...rest
+      }
+    }
+  })
 }
 
 
-export const enrollService = { create, verifyEnrolled }
+export const enrollService = { create, verifyEnrolled, getEnrolledByStudentId, getEnrollmentsByCourseId }

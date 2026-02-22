@@ -46,6 +46,7 @@ export const PERMISSIONS = {
   // Enrollment
   ENROLLMENT_JOIN: 'enrollment:join',
   ENROLLMENT_VIEW_OWN_PROGRESS: 'enrollment:view_own_progress',
+  ENROLLMENT_VIEW_OWN: 'enrollment:view_own',
   ENROLLMENT_UPDATE_OWN_PROGRESS: 'enrollment:update_own_progress',
   ENROLLMENT_VIEW_STUDENTS: 'enrollment:view_students',
 
@@ -114,6 +115,7 @@ export const ROLE_PERMISSIONS = {
     PERMISSIONS.ENROLLMENT_UPDATE_OWN_PROGRESS,
     PERMISSIONS.USER_UPDATE,
     PERMISSIONS.LESSON_VIEW,
+    PERMISSIONS.ENROLLMENT_VIEW_OWN,
   ],
 };
 

@@ -16,4 +16,16 @@ const create = catchAsync(async (req, res) => {
   })
 })
 
-export const enrollController = { create }
+const getEnrolledByStudentId = catchAsync(async (req, res) => {
+
+  const data = await enrollService.getEnrolledByStudentId(req.user as IAuthUser)
+
+  sendResponse(res, {
+    statusCode: httpStatus.CREATED,
+    success: true,
+    message: "Enrollments retrieved successfully",
+    data
+  })
+})
+
+export const enrollController = { create, getEnrolledByStudentId }
