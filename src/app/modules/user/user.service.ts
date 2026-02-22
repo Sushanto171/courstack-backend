@@ -9,7 +9,7 @@ import { invalidateUserCache } from "../../helper/invalidateUserCache";
 import { IAuthUser } from "../../types";
 import { hashPassword } from "../../utils/bcrypt";
 import { userRepository } from "./user.repository";
-import { UpdateUserStatus } from "./user.validation";
+import { IUserQuery, UpdateUserStatus } from "./user.validation";
 
 interface IGetUserWithPermission {
   id: string;
@@ -20,11 +20,9 @@ interface IGetUserWithPermission {
   permissions: string[];
 }
 
-const getUsersFromDB = async (authRole: Role) => {
+const getUsersFromDB = async (authRole: Role, query:IUserQuery) => {
 
-  const users = await userRepository.findAll({
-    allowedRoles: authRole === Role.ADMIN ? [Role.INSTRUCTOR, Role.STUDENT] : [],
-  })
+  const users = await userRepository.findAll(query)
 
   return users
 };

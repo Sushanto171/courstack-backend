@@ -7,13 +7,14 @@ import { courseService } from "./course.service"
 
 const getAll = catchAsync(async (req, res) => {
 
-  const data = await courseService.getAll()
+  const { data, meta } = await courseService.getAll(req.parsedQuery)
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
     message: "Courses retrieved successfully",
-    data
+    data,
+    meta
   })
 })
 
@@ -35,13 +36,14 @@ const getBySlug = catchAsync(async (req, res) => {
 
 const getMyCourses = catchAsync(async (req, res) => {
 
-  const data = await courseService.getMyCourses(req.user as IAuthUser)
+  const { data, meta } = await courseService.getMyCourses(req.user as IAuthUser, req.parsedQuery)
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
     message: data.length ? "Course retrieved successfully" : "Course not found!",
-    data
+    data,
+    meta
   })
 })
 

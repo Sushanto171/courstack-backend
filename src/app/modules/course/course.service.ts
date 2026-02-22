@@ -3,22 +3,34 @@ import { ApiError } from "../../helper/ApiError";
 import { formatCourseStatus } from "../../helper/format";
 import httpStatus from "../../helper/httpStatusCode";
 import { IAuthUser } from "../../types";
+import { categoryService } from "../category/category.service";
 import { courseRepository } from "./course.repository";
-import { ICreateCourse, IUpdateCourse } from "./course.validation";
+import { ICourseQuery, ICreateCourse, IUpdateCourse } from "./course.validation";
 
-const getAll = async () => {
-  return courseRepository.getAll({})
+const verifyCourseExist = async (courseId: string) => {
+  const existingCourse = await courseRepository.getByID(courseId)
+
+  if (!existingCourse) throw new ApiError(httpStatus.NOT_FOUND, "Course dose not found!");
+
+  return existingCourse;
+}
+
+
+const getAll = async (query: ICourseQuery) => {
+  return courseRepository.getAll(query)
 }
 
 const getBySlug = async (slug: string) => {
   return courseRepository.getBySlug(slug)
 }
 
-const getMyCourses = async (authUser: IAuthUser) => {
-  return courseRepository.getAll({ instructorId: authUser.id, takeInstructorInfo: false, takeDraftCourse: true })
+const getMyCourses = async (authUser: IAuthUser, query: ICourseQuery) => {
+  return courseRepository.getAll({ ...query, instructorId: authUser.id, status: ["DRAFT", "PUBLISHED", "ARCHIVED", "PENDING_REVIEW"] })
 }
 
 const create = async (authUser: IAuthUser, payload: ICreateCourse) => {
+
+  await categoryService.verifyCategory(payload.categoryId);
 
   const baseSlug = payload.title
     .trim()
@@ -54,9 +66,7 @@ const create = async (authUser: IAuthUser, payload: ICreateCourse) => {
 
 const update = async (authUser: IAuthUser, id: string, payload: IUpdateCourse) => {
 
-  const existingCourse = await courseRepository.getByID(id)
-
-  if (!existingCourse) throw new ApiError(httpStatus.NOT_FOUND, "Course dose not found!");
+  const existingCourse = await verifyCourseExist(id)
 
   const isOwner = existingCourse.instructorId === authUser.id;
 
@@ -81,9 +91,7 @@ const update = async (authUser: IAuthUser, id: string, payload: IUpdateCourse) =
 
 const updateStatus = async (authUser: IAuthUser, id: string, payload: { status: CourseStatus }) => {
 
-  const existingCourse = await courseRepository.getByID(id);
-
-  if (!existingCourse) throw new ApiError(httpStatus.NOT_FOUND, "Course dose not found!");
+  const existingCourse = await verifyCourseExist(id)
 
   const canOverrideCourseStatus = authUser.role === Role.SUPER_ADMIN || authUser.role === Role.ADMIN;
 
@@ -125,9 +133,7 @@ const updateStatus = async (authUser: IAuthUser, id: string, payload: { status: 
 
 const softDelete = async (authUser: IAuthUser, id: string) => {
 
-  const existingCourse = await courseRepository.getByID(id)
-
-  if (!existingCourse) throw new ApiError(httpStatus.NOT_FOUND, "Course dose not found!");
+  const existingCourse = await verifyCourseExist(id)
 
   const isOwner = existingCourse.instructorId === authUser.id;
 
@@ -140,4 +146,4 @@ const softDelete = async (authUser: IAuthUser, id: string) => {
 
 
 
-export const courseService = { create, getAll, getBySlug, update, getMyCourses, updateStatus, softDelete }
+export const courseService = { verifyCourseExist, create, getAll, getBySlug, update, getMyCourses, updateStatus, softDelete }

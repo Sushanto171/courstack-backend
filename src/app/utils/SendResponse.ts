@@ -1,14 +1,16 @@
-import { Response } from "express"
+import { Response } from "express";
+
+type Meta = {
+  page?: number;
+  limit?: number;
+  total?: number;
+} & Record<string, unknown>;
 
 const sendResponse = <T>(res: Response, jsonData: {
   statusCode: number,
   success: boolean,
   message: string,
-  meta?: {
-    page: number,
-    limit: number,
-    total: number
-  },
+  meta?: Meta,
   data: T | null | undefined,
   error?: unknown
 }) => {

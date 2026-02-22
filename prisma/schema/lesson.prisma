@@ -1,0 +1,42 @@
+model Lesson {
+  id          String       @id @default(uuid())
+  title       String
+  order       Int
+  isPreview   Boolean      @default(false)
+  text        String?
+  status      LessonStatus @default(DRAFT)
+  publishedAt DateTime? // when it actually went live
+  scheduledAt DateTime? // when instructor wants it to go live
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  courseId        String
+  course          Course           @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lessonVideos    LessonVideo[]
+  lessonsProgress LessonProgress[]
+
+  
+
+  @@index([courseId])
+  @@index([order])
+  @@index([status])
+  @@index([scheduledAt])
+  @@map("lessons")
+}
+
+model LessonVideo {
+  id        String   @id @default(uuid())
+  title     String?
+  url       String
+  order     Int
+  duration  Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  lessonId String
+  lesson   Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@index([lessonId])
+  @@index([order])
+  @@map("lesson_videos")
+}

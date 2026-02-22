@@ -1,16 +1,8 @@
-import { Role } from "../../../generated/prisma/enums";
 import { UserCreateInput, UserUpdateInput, UserWhereInput } from "../../../generated/prisma/models";
 import { prisma } from "../../config/prisma";
+import { pickPagination } from "../../utils/pick";
+import { IUserQuery } from "./user.validation";
 
-interface FindAllOptions {
-  cursor?: string;
-  limit?: number;
-  q?: string;
-  status?: string;
-  sort?: string;
-  order?: 'asc' | 'desc';
-  allowedRoles?: Role[];
-}
 
 const create = (data: UserCreateInput) => {
   return prisma.user.create({
@@ -19,25 +11,68 @@ const create = (data: UserCreateInput) => {
   });
 };
 
-const findAll = (options: FindAllOptions) => {
+const findAll = async (query: IUserQuery) => {
 
-  const { allowedRoles } = options;
+  const { take, skip, order, page, sortBy, rest } = pickPagination(query);
 
-  const where: UserWhereInput = {}
+  const {
+    id,
+    email,
+    phone,
+    role,
+    status,
+    gender,
+    isVerified,
+    includeDeleted,
+    createdFrom,
+    createdTo,
+    search
+  } = rest;
 
-  if (allowedRoles && allowedRoles.length > 0) {
-    where.role = {
-      in: allowedRoles.map(role => role)
-    };
+  const where: UserWhereInput = {
+    deletedAt: includeDeleted ? { not: null } : null,
+    ...(id && { id }),
+    ...(email && { email: { contains: email, mode: "insensitive" } }),
+    ...(phone && { phone: { contains: phone, mode: "insensitive" } }),
+    ...(typeof isVerified === "boolean" && { isVerified }),
+    ...(role?.length && { role: { in: role } }),
+    ...(status?.length && { status: { in: status } }),
+    ...(gender?.length && { gender: { in: gender } }),
+    ...((createdFrom || createdTo) && {
+      createdAt: {
+        ...(createdFrom && { gte: createdFrom }),
+        ...(createdTo && { lte: createdTo }),
+      }
+    }),
+    ...(search && {
+      OR: [
+        { name: { contains: search, mode: "insensitive" } },
+        { email: { contains: search, mode: "insensitive" } },
+        { phone: { contains: search, mode: "insensitive" } },
+      ]
+    }),
+  };
+
+  const [data, total] = await prisma.$transaction([
+    prisma.user.findMany({
+      where,
+      omit: {
+        password: true
+      },
+      take,
+      skip,
+      orderBy: { [sortBy]: order }
+    }),
+    prisma.user.count({ where })
+  ])
+
+  const meta = {
+    limit: take,
+    page,
+    total,
+    totalPages: Math.ceil(total / take)
   }
-
-  return prisma.user.findMany({
-    where,
-    orderBy: { createdAt: "desc" },
-    omit: {
-      password: true
-    }
-  });
+  return { data, meta }
 };
 
 const findByEmail = (email: string, omitPassword = true) => {

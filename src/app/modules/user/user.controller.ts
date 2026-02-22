@@ -8,13 +8,14 @@ import { userService } from "./user.service";
 
 const getUsersFromDB = catchAsync(async (req, res) => {
 
-  const data = await userService.getUsersFromDB(req!.user!.role as Role)
+  const { data, meta } = await userService.getUsersFromDB(req!.user!.role as Role, req.parsedQuery)
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
     message: "User fetched successfully",
-    data
+    data,
+    meta
   })
 })
 

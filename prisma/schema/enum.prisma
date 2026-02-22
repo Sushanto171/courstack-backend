@@ -24,8 +24,23 @@ enum CourseStatus {
   ARCHIVED
 }
 
+enum LessonStatus {
+  DRAFT
+  SCHEDULED   
+  PUBLISHED
+}
 
 
+enum EnrollmentStatus {
+  ACTIVE
+  UNPAID
+  COMPLETED
+  DROPPED
+}
 
-
-
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  REFUNDED
+}

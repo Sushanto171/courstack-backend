@@ -1,0 +1,53 @@
+model Enrollment {
+  id                    String           @id @default(uuid())
+  status                EnrollmentStatus @default(ACTIVE)
+  enrolledAt            DateTime         @default(now())
+  updatedAt             DateTime         @updatedAt
+  lastAccessLessonOrder Int?
+  lastAccessAt          DateTime?
+
+  studentId String
+  student   User   @relation(fields: [studentId], references: [id])
+
+  courseId String
+  course   Course @relation(fields: [courseId], references: [id])
+
+  lessonProgress LessonProgress[]
+  payment        Payment?
+
+  @@unique([studentId, courseId])
+  @@index([studentId])
+  @@index([courseId])
+  @@index([status])
+  @@map("enrollments")
+}
+
+model LessonProgress {
+  id           String     @id @default(uuid())
+  completedAt  DateTime   @default(now())
+  enrollmentId String
+  enrollment   Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+
+  lessonId String
+  lesson   Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([enrollmentId, lessonId])
+  @@index([enrollmentId])
+  @@map("lesson_progress")
+}
+
+model Payment {
+  id             String        @id @default(uuid())
+  price          Decimal       @db.Decimal(10, 2)
+  status         PaymentStatus @default(PENDING)
+  paymentGateway Json?
+  transactionId  String        @unique
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  enrollmentId String     @unique
+  enrollment   Enrollment @relation(fields: [enrollmentId], references: [id])
+
+  @@index([status])
+  @@map("payments")
+}
