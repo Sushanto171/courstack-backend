@@ -4,6 +4,7 @@ import { prisma } from "../../config/prisma";
 import { ApiError } from "../../helper/ApiError";
 import httpStatus from "../../helper/httpStatusCode";
 import { IAuthUser } from "../../types";
+import { mappingPercentage } from "../../utils/mappingPercentage";
 import { courseService } from "../course/course.service";
 import { paymentService } from "../payment/payment.service";
 import { enrollRepository } from "./enrollment.repository";
@@ -117,29 +118,39 @@ const create = async (authUser: IAuthUser, payload: IEnroll) => {
 
 const getEnrollmentsByCourseId = async (authUser: IAuthUser, courseId: string) => {
 
+  await courseService.verifyCourseExist(courseId)
+
   const data = await prisma.course.findFirst({
     where: { id: courseId, instructorId: authUser.id },
     select: {
       id: true,
+      title: true,
+      overview: true,
+      price: true,
+      slug: true,
+
       category: {
         select: {
           name: true
         }
       },
-      title: true,
-      overview: true,
-      price: true,
-      slug: true,
       _count: {
         select: {
           enrollments: true,
+          lessons: true
         }
       },
       enrollments: {
-        omit: {
-          courseId: true,
-        },
         select: {
+          id: true,
+          lastAccessAt: true,
+          lastAccessLessonOrder: true,
+          status: true,
+          _count: {
+            select: {
+              lessonProgress: true
+            }
+          },
           student: {
             select: {
               id: true,
@@ -160,26 +171,51 @@ const getEnrollmentsByCourseId = async (authUser: IAuthUser, courseId: string) =
     ...rest,
     category: category.name,
     totalEnrollments: _count.enrollments,
-    enrolledStudents: enrollments.map((s) => s.student)
+    totalLessons: _count.lessons,
+    enrolledStudents: enrollments.map(({ _count: e, lastAccessLessonOrder, student, ...rest }) => {
+      return {
+        enrollInfo: {
+          ...rest,
+          lastAccessLessonOrder,
+          lessonProgressPercentage: mappingPercentage(_count.lessons, lastAccessLessonOrder || e.lessonProgress)
+        },
+        studentInfo: {
+          ...student
+        }
+      }
+    })
+
   }
 }
 
 const getEnrolledByStudentId = async (authUser: IAuthUser) => {
-  const data = await enrollRepository.getMany(authUser.id)
+  const enrolls = await enrollRepository.getMany(authUser.id);
 
-  return data.map(({ _count, course, ...enroll }) => {
-    const { _count: totalLessons, category, ...rest } = course
+  const totalEnrollments = enrolls.length;
+
+
+  const data = enrolls.map(({ _count, course, lastAccessLessonOrder, ...enroll }) => {
+    const { _count: lessonCounts, category, ...rest } = course;
+
+    const totalLessons = lessonCounts.lessons;
+    const progress = lastAccessLessonOrder || _count.lessonProgress;
+
+    const lessonProgressPercentage = mappingPercentage(totalLessons, progress)
+
     return {
       ...enroll,
-      lessonProgressCount: _count.lessonProgress,
+      lastAccessLessonOrder,
+      lessonProgressCount: progress,
+      lessonProgressPercentage,
       courseDetails: {
-        totalLessons: totalLessons.lessons,
+        totalLessons,
         category: category.name,
         ...rest
       }
-    }
-  })
-}
+    };
+  });
 
+  return { data, meta: { totalEnrollments } }
+}
 
 export const enrollService = { create, verifyEnrolled, getEnrolledByStudentId, getEnrollmentsByCourseId }

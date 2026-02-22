@@ -16,16 +16,29 @@ const create = catchAsync(async (req, res) => {
   })
 })
 
-const getEnrolledByStudentId = catchAsync(async (req, res) => {
+const getEnrollmentsByCourseId = catchAsync(async (req, res) => {
 
-  const data = await enrollService.getEnrolledByStudentId(req.user as IAuthUser)
+  const data = await enrollService.getEnrollmentsByCourseId(req.user as IAuthUser, req.params.courseId as string)
 
   sendResponse(res, {
-    statusCode: httpStatus.CREATED,
+    statusCode: httpStatus.OK,
     success: true,
     message: "Enrollments retrieved successfully",
     data
   })
 })
 
-export const enrollController = { create, getEnrolledByStudentId }
+const getEnrolledByStudentId = catchAsync(async (req, res) => {
+
+  const { data, meta } = await enrollService.getEnrolledByStudentId(req.user as IAuthUser)
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Enrollments retrieved successfully",
+    data,
+    meta
+  })
+})
+
+export const enrollController = { create, getEnrolledByStudentId, getEnrollmentsByCourseId }

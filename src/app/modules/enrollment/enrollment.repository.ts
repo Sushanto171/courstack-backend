@@ -24,8 +24,10 @@ const getMany = (studentId: string) => {
           id: true,
           title: true,
           thumbnail: true,
+          slug: true,
           overview: true,
           status: true,
+          price: true,
           _count: {
             select: {
               lessons: true

@@ -10,7 +10,9 @@ const router = Router()
 
 router.use(authenticate)
 
-router.get("/my-enrollments", authorize(PERMISSIONS.ENROLLMENT_VIEW_OWN), enrollController.getEnrolledByStudentId);
+router.get("/my-enrollments", authorize(PERMISSIONS.ENROLLMENT_VIEW_OWN_PROGRESS), enrollController.getEnrolledByStudentId);
+
+router.get("/:courseId", authorize(PERMISSIONS.ENROLLMENT_VIEW_STUDENTS), enrollController.getEnrollmentsByCourseId);
 
 router.post("/", validateRequest(enrollmentValidation.enrollSchema), authorize(PERMISSIONS.ENROLLMENT_JOIN), enrollController.create);
 

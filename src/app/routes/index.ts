@@ -5,6 +5,7 @@ import { courseRoutes } from "../modules/course/course.routes";
 import { enrollmentRoutes } from "../modules/enrollment/enrollment.routes";
 import { lessonRoutes } from "../modules/lesson/lesson.routes";
 import { paymentRoutes } from "../modules/payment/payment.routes";
+import { statsRoutes } from "../modules/stats/stats.routes";
 import { userRoutes } from "../modules/user/user.routes";
 
 interface Routes {
@@ -42,6 +43,10 @@ const routes: Routes[] = [
   {
     router: paymentRoutes,
     path: "/payment"
+  },
+  {
+    router: statsRoutes,
+    path: "/stats"
   },
 ];
 
