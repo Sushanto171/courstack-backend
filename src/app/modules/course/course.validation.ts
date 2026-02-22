@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { CourseStatus } from '../../../generated/prisma/enums';
+import { buildQuerySchema } from '../../schema/query';
 
 const createCourse = z.object({
   title: z
@@ -79,14 +80,44 @@ const updateCourseStatus = z.object({
     'Invalid course status. Allowed values: DRAFT, PUBLISHED, ARCHIVED, PENDING_REVIEW'),
 });
 
+const courseFilters = z.object({
+  instructorId: z.string().uuid().optional(),
+  categoryId: z.string().uuid().optional(),
+
+  status: z.preprocess(
+    (val) => {
+      if (typeof val === "string") return val.split(",");
+      return val;
+    },
+    z.array(z.enum(["DRAFT", "PUBLISHED", "ARCHIVED", "PENDING_REVIEW"])).optional()
+  ),
+
+  minPrice: z.coerce.number().min(0).optional(),
+  maxPrice: z.coerce.number().min(0).optional(),
+
+  minDuration: z.coerce.number().int().min(0).optional(),
+  maxDuration: z.coerce.number().int().min(0).optional(),
+
+  includeDeleted: z.coerce.boolean().default(false),
+});
+
+
+const courseQuerySchema = buildQuerySchema({
+  sortFields: ["createdAt", "updatedAt", "price", "title", "durationMinutes"] as const,
+  defaultSort: "createdAt",
+  defaultOrder: "desc",
+  filters: courseFilters
+})
 
 
 export type ICreateCourse = z.infer<typeof createCourse>;
 export type IUpdateCourse = z.infer<typeof updateCourse>;
 export type IUpdateCourseStatus = z.infer<typeof updateCourseStatus>;
+export type ICourseQuery = z.infer<typeof courseQuerySchema>;
 
 export const courseValidation = {
   createCourse,
   updateCourse,
-  updateCourseStatus
+  updateCourseStatus,
+  courseQuerySchema
 }

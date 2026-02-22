@@ -1,39 +1,60 @@
-import { CourseStatus } from "../../../generated/prisma/enums";
 import { CourseCreateInput, CourseUpdateInput, CourseWhereInput, CourseWhereUniqueInput } from "../../../generated/prisma/models";
 import { prisma } from "../../config/prisma";
+import { pickPagination } from "../../utils/pick";
+import { ICourseQuery } from "./course.validation";
 
 
-interface IGetAllOptions {
-  instructorId?: string,
-  isDeleted?: boolean,
-  takeInstructorInfo?: boolean,
-  takeDraftReviewCourse?: boolean
-}
 
-const getAll = (options: IGetAllOptions) => {
-  const { instructorId, isDeleted = false, takeInstructorInfo = true, takeDraftReviewCourse = false } = options;
+const getAll = async (query: ICourseQuery,) => {
+
+  const { take, skip, order, page, sortBy, rest } = pickPagination(query);
+  const { status, includeDeleted, categoryId, instructorId, search, minDuration, minPrice, maxPrice, maxDuration } = rest
+
 
   const where: CourseWhereInput = {
-    deletedAt: isDeleted ? { not: null } : null,
-    status: takeDraftReviewCourse ? undefined : { notIn: [CourseStatus.DRAFT, CourseStatus.PENDING_REVIEW] },
-    ...(instructorId && { instructorId })
-  }
-
-  return prisma.course.findMany(
-    {
+    ...(status?.length && { status: { in: status } }),
+    deletedAt: includeDeleted ? { not: null } : null,
+    ...(categoryId && { categoryId }),
+    ...(instructorId && { instructorId }),
+    ...(search && {
+      OR: [
+        { title: { contains: search, mode: "insensitive" } },
+        { overview: { contains: search, mode: "insensitive" } },
+      ],
+    }),
+    ...((minDuration || maxDuration) && {
+      durationMinutes: {
+        ...(minDuration && { gte: minDuration }),
+        ...(maxDuration && { lte: maxDuration }),
+      },
+    }),
+    ...((minPrice || maxPrice) && {
+      price: {
+        ...(minPrice && { gte: minPrice }),
+        ...(maxPrice && { lte: maxPrice }),
+      },
+    }),
+  };
+  const [data, total] = await prisma.$transaction([
+    prisma.course.findMany({
       where,
-      include: takeInstructorInfo ?
-        {
-          instructor: {
-            select: {
-              id: true,
-              name: true,
-              photoURL: true
-            }
-          }
-        } : undefined
-    }
-  )
+      include: { instructor: { select: { id: true, name: true, photoURL: true } } },
+      take,
+      skip,
+      orderBy: { [sortBy]: order }
+    }),
+
+    prisma.course.count({ where })
+  ]);
+
+
+  const meta = {
+    limit: take,
+    page,
+    total,
+    totalPages: Math.ceil(total / take)
+  }
+  return { data, meta }
 }
 
 const create = (data: CourseCreateInput) => {

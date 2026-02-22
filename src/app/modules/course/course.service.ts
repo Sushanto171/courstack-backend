@@ -5,7 +5,7 @@ import httpStatus from "../../helper/httpStatusCode";
 import { IAuthUser } from "../../types";
 import { categoryService } from "../category/category.service";
 import { courseRepository } from "./course.repository";
-import { ICreateCourse, IUpdateCourse } from "./course.validation";
+import { ICourseQuery, ICreateCourse, IUpdateCourse } from "./course.validation";
 
 const verifyCourseExist = async (courseId: string) => {
   const existingCourse = await courseRepository.getByID(courseId)
@@ -16,16 +16,16 @@ const verifyCourseExist = async (courseId: string) => {
 }
 
 
-const getAll = async () => {
-  return courseRepository.getAll({})
+const getAll = async (query: ICourseQuery) => {
+  return courseRepository.getAll(query)
 }
 
 const getBySlug = async (slug: string) => {
   return courseRepository.getBySlug(slug)
 }
 
-const getMyCourses = async (authUser: IAuthUser) => {
-  return courseRepository.getAll({ instructorId: authUser.id, takeInstructorInfo: false, takeDraftReviewCourse: true })
+const getMyCourses = async (authUser: IAuthUser, query: ICourseQuery) => {
+  return courseRepository.getAll({ ...query, instructorId: authUser.id, status: ["DRAFT", "PUBLISHED", "ARCHIVED", "PENDING_REVIEW"] })
 }
 
 const create = async (authUser: IAuthUser, payload: ICreateCourse) => {
