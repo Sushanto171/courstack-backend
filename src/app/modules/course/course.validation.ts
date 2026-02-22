@@ -21,6 +21,10 @@ const createCourse = z.object({
     .min(0, 'Price cannot be negative')
     .max(99999, 'Price must not exceed 99999')
     .default(0),
+  totalLessons: z
+    .number('TotalLessons is required')
+    .min(0, 'TotalLessons cannot be negative')
+    .max(99999, 'TotalLessons must not exceed 99999'),
   durationMinutes: z
     .number('Duration Minutes is required')
     .min(0, 'Duration Minutes cannot be negative')
@@ -39,12 +43,12 @@ const updateCourse = z.object({
     .string('Title is required')
     .min(5, 'Title must be at least 5 characters')
     .max(150, 'Title must not exceed 150 characters')
-    .trim(),
+    .trim().optional(),
   overview: z
     .string('Overview is required')
     .min(10, 'Overview must be at least 10 characters')
     .max(300, 'Overview must not exceed 150 characters')
-    .trim(),
+    .trim().optional(),
   description: z
     .string('Description is required')
     .min(5, 'Description must be at least 5 characters')
@@ -53,12 +57,16 @@ const updateCourse = z.object({
     .number('Price is required')
     .min(0, 'Price cannot be negative')
     .max(99999, 'Price must not exceed 99999')
-    .default(0),
+    .optional(),
+  totalLessons: z
+    .number('Total Lessons is required')
+    .min(0, 'Total Lessons cannot be negative')
+    .max(99999, 'Total Lessons must not exceed 99999').optional(),
   durationMinutes: z
     .number('Duration Minutes is required')
     .min(0, 'Duration Minutes cannot be negative')
     .max(99999, 'Duration Minutes must not exceed 99999')
-    .default(0),
+    .optional(),
   categoryId: z
     .string('Category is required')
     .uuid('Invalid category ID'),

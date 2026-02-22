@@ -3,6 +3,7 @@ import { ApiError } from "../../helper/ApiError";
 import { formatCourseStatus } from "../../helper/format";
 import httpStatus from "../../helper/httpStatusCode";
 import { IAuthUser } from "../../types";
+import { categoryService } from "../category/category.service";
 import { courseRepository } from "./course.repository";
 import { ICreateCourse, IUpdateCourse } from "./course.validation";
 
@@ -24,10 +25,12 @@ const getBySlug = async (slug: string) => {
 }
 
 const getMyCourses = async (authUser: IAuthUser) => {
-  return courseRepository.getAll({ instructorId: authUser.id, takeInstructorInfo: false, takeDraftCourse: true })
+  return courseRepository.getAll({ instructorId: authUser.id, takeInstructorInfo: false, takeDraftReviewCourse: true })
 }
 
 const create = async (authUser: IAuthUser, payload: ICreateCourse) => {
+
+  await categoryService.verifyCategory(payload.categoryId);
 
   const baseSlug = payload.title
     .trim()

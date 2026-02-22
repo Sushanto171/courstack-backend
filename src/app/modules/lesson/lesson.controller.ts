@@ -9,13 +9,14 @@ const getLessonsByCourseId = catchAsync(async (req, res) => {
 
   const courseId = req.params?.courseId as string
 
-  const data = await lessonService.getLessonsByCourseId(req.user as IAuthUser, courseId)
+  const { data, meta } = await lessonService.getLessonsByCourseId(req.user as IAuthUser, courseId)
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
     message: "Courses Lessons overview retrieved successfully",
-    data
+    data,
+    meta: meta ?? undefined
   })
 })
 
@@ -101,4 +102,23 @@ const deleteOne = catchAsync(async (req, res) => {
   })
 })
 
-export const lessonController = { getLessonsByCourseId, getOneLessonByLessonId, create, updateByLessonId, updateLessonStatusByLessonId, deleteOne }
+
+const lessonCompleted = catchAsync(async (req, res) => {
+
+  const { courseId, lessonId } = req.params as { courseId: string, lessonId: string }
+
+  if (!(courseId && lessonId)) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "Invalid course or lessonId")
+  }
+
+  await lessonService.lessonCompleted(req.user as IAuthUser, courseId, lessonId, req.body)
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Completed lessoned id saved successfully",
+    data: null
+  })
+})
+
+export const lessonController = { getLessonsByCourseId, getOneLessonByLessonId, create, updateByLessonId, updateLessonStatusByLessonId, deleteOne, lessonCompleted }

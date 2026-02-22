@@ -46,12 +46,12 @@ export const globalError = (error: any, req: Request, res: Response, _next: Next
 
 
   if (error instanceof ZodError) {
-    message = "Validation failed"
     statusCode = httpStatus.BAD_REQUEST
     error = error.issues.map(e => ({
       path: e.path.join("."),
       message: e.message,
     }))
+    message = "Validation failed";
   }
 
   sendResponse(res, {

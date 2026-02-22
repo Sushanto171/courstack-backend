@@ -21,7 +21,9 @@ router.patch("/:lessonId/status", validateRequest(lessonValidation.updateLessonS
 
 router.patch("/:lessonId", validateRequest(lessonValidation.updateLesson), authorize(PERMISSIONS.LESSON_UPDATE), lessonController.updateByLessonId);
 
-router.delete("/:lessonId", authorize(PERMISSIONS.LESSON_DELETE), lessonController.deleteOne)
+router.delete("/:lessonId", authorize(PERMISSIONS.LESSON_DELETE), lessonController.deleteOne);
+
+router.post("/:lessonId/progress", validateRequest(lessonValidation.lessonProgress), authorize(PERMISSIONS.ENROLLMENT_UPDATE_OWN_PROGRESS), lessonController.lessonCompleted);
 
 
 export const lessonRoutes = router

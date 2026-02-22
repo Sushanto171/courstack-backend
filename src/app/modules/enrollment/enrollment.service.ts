@@ -110,7 +110,7 @@ const create = async (authUser: IAuthUser, payload: IEnroll) => {
 const verifyEnrolled = async (courseId: string, studentId: string) => {
   const existingEnroll = await enrollRepository.getOne({ studentId_courseId: { courseId, studentId }, status: EnrollmentStatus.ACTIVE });
 
-  if (!existingEnroll) throw new ApiError(httpStatus.FORBIDDEN, `Access denied: Student ${studentId} is not enrolled in course ${courseId}.`
+  if (!existingEnroll) throw new ApiError(httpStatus.PAYMENT_REQUIRED, `Access denied: Student ${studentId} is not enrolled in course ${courseId}.`
   );
   return existingEnroll
 }

@@ -84,6 +84,35 @@ const createLesson = z
     },
   )
 
+const updateLessonVideo = z
+  .object({
+    title: z
+      .string()
+      .min(2, 'Title must be at least 2 characters')
+      .max(150, 'Title must not exceed 150 characters')
+      .trim()
+      .optional(),
+
+    order: z
+      .number()
+      .int()
+      .min(1, 'Order must be at least 1')
+      .optional(),
+
+    duration: z
+      .number()
+      .int()
+      .min(1)
+      .optional(),
+    url: z
+      .string('Video URL is required')
+      .url('Invalid video URL'),
+  })
+
+  .refine(
+    (data) => Object.keys(data).length > 0,
+    { message: 'At least one field must be provided' },
+  )
 
 
 const updateLesson = z.object({
@@ -109,57 +138,66 @@ const updateLesson = z.object({
     .min(10, 'Text content must be at least 10 characters')
     .max(50000, 'Text content must not exceed 50000 characters')
     .optional(),
+  videos: z
+    .array(lessonVideo)
+    .min(1, 'At least one video required if videos provided')
+    .refine(
+      (videos) => {
+        const orders = videos.map((v) => v.order);
+        return new Set(orders).size === orders.length;
+      },
+      { message: 'Video order values must be unique' },
+    )
+    .optional(),
 })
 
 
 
 const updateLessonStatus = z.object({
-      status: z.enum(Object.keys(LessonStatus), "Invalid status! allowed status : DRAFT, SCHEDULED, PUBLISHED"),
+  status: z.enum(Object.keys(LessonStatus), "Invalid status! allowed status : DRAFT, SCHEDULED, PUBLISHED"),
 
-      // Required only when status is SCHEDULED
-      scheduledAt: z
-        .string()
-        .datetime({ message: 'scheduledAt must be a valid ISO datetime' })
-        .optional(),
-    })
-    // scheduledAt required when SCHEDULED
-    .refine(
-      (data) => {
-        if (data.status === 'SCHEDULED' && !data.scheduledAt) return false;
-        return true;
-      },
-      {
-        message: 'scheduledAt is required when status is SCHEDULED',
-        path: ['scheduledAt'],
-      },
-    )
-    // scheduledAt must be future date
-    .refine(
-      (data) => {
-        if (data.status === 'SCHEDULED' && data.scheduledAt) {
-          return new Date(data.scheduledAt) > new Date();
-        }
-        return true;
-      },
-      {
-        message: 'scheduledAt must be a future date and time',
-        path: ['scheduledAt'],
-      },
-    )
+  // Required only when status is SCHEDULED
+  scheduledAt: z
+    .string()
+    .datetime({ message: 'scheduledAt must be a valid ISO datetime' })
+    .optional(),
+})
+  // scheduledAt required when SCHEDULED
+  .refine(
+    (data) => {
+      if (data.status === 'SCHEDULED' && !data.scheduledAt) return false;
+      return true;
+    },
+    {
+      message: 'scheduledAt is required when status is SCHEDULED',
+      path: ['scheduledAt'],
+    },
+  )
+  // scheduledAt must be future date
+  .refine(
+    (data) => {
+      if (data.status === 'SCHEDULED' && data.scheduledAt) {
+        return new Date(data.scheduledAt) > new Date();
+      }
+      return true;
+    },
+    {
+      message: 'scheduledAt must be a future date and time',
+      path: ['scheduledAt'],
+    },
+  )
 
-    // scheduledAt not allowed when DRAFT or PUBLISHED
-    .refine(
-      (data) => {
-        if (data.status !== 'SCHEDULED' && data.scheduledAt) return false;
-        return true;
-      },
-      {
-        message: 'scheduledAt is only allowed when status is SCHEDULED',
-        path: ['scheduledAt'],
-      },
-    )
-
-
+  // scheduledAt not allowed when DRAFT or PUBLISHED
+  .refine(
+    (data) => {
+      if (data.status !== 'SCHEDULED' && data.scheduledAt) return false;
+      return true;
+    },
+    {
+      message: 'scheduledAt is only allowed when status is SCHEDULED',
+      path: ['scheduledAt'],
+    },
+  )
 
 
 const addLessonVideo = z.object({
@@ -168,40 +206,15 @@ const addLessonVideo = z.object({
 });
 
 
-const updateLessonVideo = z.object({
-  params: lessonParams.extend({
-    videoId: z
-      .string('Video ID is required')
-      .uuid('Invalid video ID'),
-  }),
 
-  body: z
-    .object({
-      title: z
-        .string()
-        .min(2, 'Title must be at least 2 characters')
-        .max(150, 'Title must not exceed 150 characters')
-        .trim()
-        .optional(),
 
-      order: z
-        .number()
-        .int()
-        .min(1, 'Order must be at least 1')
-        .optional(),
 
-      duration: z
-        .number()
-        .int()
-        .min(1)
-        .optional(),
-    })
 
-    .refine(
-      (data) => Object.keys(data).length > 0,
-      { message: 'At least one field must be provided' },
-    ),
-});
+const lessonProgress = z.object({
+  order: z.int("Order must be positive number").nonnegative(
+
+  )
+})
 
 export const lessonValidation = {
   createLesson,
@@ -209,12 +222,14 @@ export const lessonValidation = {
   updateLessonStatus,
   addLessonVideo,
   updateLessonVideo,
-  lessonVideo
+  lessonVideo,
+  lessonProgress
 }
 
 export type ICreateLesson = z.infer<typeof createLesson>;
 export type IUpdateLesson = z.infer<typeof updateLesson>
 export type IUpdateLessonStatus = z.infer<typeof updateLessonStatus>;
 export type IAddLessonVideo = z.infer<typeof addLessonVideo>['body'];
-export type IUpdateLessonVideo = z.infer<typeof updateLessonVideo>['body'];
+export type IUpdateLessonVideo = z.infer<typeof updateLessonVideo>;
 export type ILessonVideo = z.infer<typeof lessonVideo>;
+export type ILessonProgress = z.infer<typeof lessonProgress>;

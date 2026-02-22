@@ -1,12 +1,14 @@
 import { LessonStatus, Role } from "../../../generated/prisma/enums"
+import { prisma } from "../../config/prisma"
 import { ApiError } from "../../helper/ApiError"
 import httpStatus from "../../helper/httpStatusCode"
 import { IAuthUser } from "../../types"
 import { courseRepository } from "../course/course.repository"
 import { courseService } from "../course/course.service"
+import { enrollRepository } from "../enrollment/enrollment.repository"
 import { enrollService } from "../enrollment/enrollment.service"
 import { lessonRepository } from "./lesson.repository"
-import { ICreateLesson, IUpdateLesson } from "./lesson.validation"
+import { ICreateLesson, ILessonProgress, IUpdateLesson } from "./lesson.validation"
 
 const verifyCourseOwnership = async (instructorId: string, courseId: string) => {
   const course = await courseRepository.getOneCourse({
@@ -25,13 +27,16 @@ const verifyCourseOwnership = async (instructorId: string, courseId: string) => 
 // anyone can view all (published) lessons (course overview) 
 // owner can view own draft, schedule, published lessons
 const getLessonsByCourseId = async (authUser: IAuthUser, courseId: string) => {
-  const existingCourse = await courseService.verifyCourseExist(courseId);
+  await courseService.verifyCourseExist(courseId);
 
-  const isOwner = existingCourse.instructorId === authUser.id;
 
-  return await lessonRepository.getLessonsByCourseId({
+  const ifEnrolled = await enrollRepository.getOne({ studentId_courseId: { studentId: authUser.id, courseId } }, { lastAccessAt: true, lastAccessLessonOrder: true });
+
+
+
+  const lessons = await lessonRepository.getLessonsByCourseId({
     courseId,
-    status: isOwner ? undefined : LessonStatus.PUBLISHED,
+    // status: isOwner ? undefined : LessonStatus.PUBLISHED,
   },
     {
       id: true,
@@ -40,20 +45,11 @@ const getLessonsByCourseId = async (authUser: IAuthUser, courseId: string) => {
       title: true,
       courseId: true,
       status: true,
-      lessonVideos: {
-        select: {
-          id: true,
-          title: true,
-          duration: true,
-          order: true
-        },
-        orderBy: {
-          order: "asc"
-        }
-      },
     },
 
   )
+
+  return { data: lessons, meta: ifEnrolled }
 }
 
 // only one lesson with all included parts 
@@ -66,7 +62,7 @@ const getOneLessonByLessonId = async (authUser: IAuthUser, courseId: string, les
   const canAccessWithoutEnrollment = authUser.role === Role.SUPER_ADMIN || authUser.role === Role.ADMIN;
 
 
-  const lesson = await lessonRepository.getLessonsByCourseId({
+  const lesson = await lessonRepository.getOneLessonByCourseId({
     courseId,
     status: isOwner ? undefined : LessonStatus.PUBLISHED,
     id: lessonId
@@ -117,7 +113,7 @@ const updateLessonByLessonId = async (authUser: IAuthUser, courseId: string, les
 const updateLessonStatusByLessonId = async (authUser: IAuthUser, courseId: string, lessonId: string, payload: { status: LessonStatus }) => {
 
   await verifyCourseOwnership(authUser.id, courseId);
-  return await lessonRepository.updateById(lessonId, courseId, { status: payload.status })
+  return await lessonRepository.updateStatusById(lessonId, courseId, { status: payload.status })
 }
 
 const deleteLessonByLessonId = async (authUser: IAuthUser, courseId: string, lessonId: string) => {
@@ -126,6 +122,70 @@ const deleteLessonByLessonId = async (authUser: IAuthUser, courseId: string, les
   return await lessonRepository.deleteOne(lessonId, courseId,)
 }
 
+const lessonCompleted = async (
+  authUser: IAuthUser,
+  courseId: string,
+  lessonId: string,
+  payload: ILessonProgress
+) => {
+  const now = new Date();
+
+  const lesson = await lessonRepository.getLessonsByCourseId(
+    {
+      courseId,
+      id: lessonId,
+      order: payload.order,
+      status: LessonStatus.PUBLISHED,
+    },
+    { id: true, isPreview: true }
+  );
+
+  if (!lesson) return { tracked: false, reason: "Lesson not found" };
+
+  const enrollment = await enrollRepository.getOne({
+    studentId_courseId: { courseId, studentId: authUser.id }
+  });
+
+  if (!enrollment) return { tracked: false, reason: "Not enrolled" };
+
+  await prisma.$transaction(async (tx) => {
+
+    const existing = await tx.lessonProgress.findUnique({
+      where: {
+        enrollmentId_lessonId: {
+          enrollmentId: enrollment.id,
+          lessonId,
+        },
+      },
+      select: { id: true }
+    });
+
+    if (existing) return;
+
+    await tx.lessonProgress.create({
+      data: {
+        enrollmentId: enrollment.id,
+        lessonId,
+        completedAt: now,
+      },
+    });
 
 
-export const lessonService = { create, getLessonsByCourseId, getOneLessonByLessonId, updateLessonByLessonId, updateLessonStatusByLessonId, deleteLessonByLessonId }
+    await tx.enrollment.update({
+      where: {
+        studentId_courseId: {
+          studentId: authUser.id,
+          courseId,
+        },
+      },
+      data: {
+        lastAccessAt: now,
+        lastAccessLessonOrder: payload.order,
+      },
+    });
+  });
+
+  return { tracked: true };
+};
+
+export const lessonService = { create, getLessonsByCourseId, getOneLessonByLessonId, updateLessonByLessonId, updateLessonStatusByLessonId, deleteLessonByLessonId, lessonCompleted }

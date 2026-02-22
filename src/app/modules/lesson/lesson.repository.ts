@@ -1,8 +1,12 @@
-import { LessonSelect, LessonUpdateInput, LessonWhereInput } from "../../../generated/prisma/models";
+import { LessonStatus } from "../../../generated/prisma/enums";
+import { LessonSelect, LessonWhereInput } from "../../../generated/prisma/models";
 import { prisma } from "../../config/prisma";
-import { ICreateLesson } from "./lesson.validation";
+import { ICreateLesson, IUpdateLesson } from "./lesson.validation";
 
 const getLessonsByCourseId = (where: LessonWhereInput, select: LessonSelect) => {
+  return prisma.lesson.findMany({ where, select, orderBy: { order: "asc" } })
+}
+const getOneLessonByCourseId = (where: LessonWhereInput, select: LessonSelect) => {
   return prisma.lesson.findFirst({ where, select, orderBy: { order: "asc" } })
 }
 
@@ -76,12 +80,43 @@ const create = async (courseId: string, payload: ICreateLesson) => {
 
 }
 
-const updateById = (lessonId: string, courseId: string, data: LessonUpdateInput) => {
-  return prisma.lesson.update({ where: { courseId, id: lessonId, }, data })
+const updateById = async (lessonId: string, courseId: string, payload: IUpdateLesson & { status?: LessonStatus, publishedAt?: Date }) => {
+  const { videos, ...data } = payload;
+
+  return await prisma.$transaction(async (tnx) => {
+    // create lesson video
+    if (videos && videos.length) {
+      await tnx.lessonVideo.createMany({
+        data: videos.map((video) => ({
+          title: video.title ?? null,
+          url: video.url,
+          order: video.order,
+          duration: video.duration ?? null,
+          lessonId,
+        }))
+      })
+    }
+
+    await tnx.lesson.update({ where: { courseId, id: lessonId, }, data })
+  })
+}
+
+const updateStatusById = async (lessonId: string, courseId: string, payload: { status: LessonStatus }) => {
+
+  return prisma.lesson.update(
+    {
+      where:
+        { courseId, id: lessonId, },
+      data: {
+        status: payload.status,
+        publishedAt: payload.status === "PUBLISHED" ? new Date(Date.now()) : null
+      }
+    })
+
 }
 
 const deleteOne = (lessonId: string, courseId: string,) => {
   return prisma.lesson.delete({ where: { courseId, id: lessonId, } })
 }
 
-export const lessonRepository = { create, getLessonsByCourseId, updateById, deleteOne }
+export const lessonRepository = { create, getLessonsByCourseId, updateById, deleteOne, updateStatusById , getOneLessonByCourseId}
