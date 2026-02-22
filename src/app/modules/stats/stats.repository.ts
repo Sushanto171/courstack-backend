@@ -1,3 +1,4 @@
+import { Prisma } from "../../../generated/prisma/client";
 import { CourseStatus } from "../../../generated/prisma/enums";
 import { prisma } from "../../config/prisma";
 
@@ -251,6 +252,279 @@ const enrollmentStats = async () => {
 };
 
 
+const paymentStats = async () => {
+
+  const [
+    totalRevenueAgg,
+    paymentsByStatus,
+    revenueLast7DaysAgg,
+    revenueLast30DaysAgg,
+    recentPayments,
+    topEnrollments,
+    revenueChart
+  ] = await Promise.all([
+
+    prisma.payment.aggregate({
+      where: { status: "SUCCESS" },
+      _sum: { price: true }
+    }),
+
+    prisma.payment.groupBy({
+      by: ["status"],
+      _count: { _all: true }
+    }),
+
+    prisma.payment.aggregate({
+      where: {
+        status: "SUCCESS",
+        createdAt: { gte: previous7Days }
+      },
+      _sum: { price: true }
+    }),
+
+    prisma.payment.aggregate({
+      where: {
+        status: "SUCCESS",
+        createdAt: { gte: previous30Days }
+      },
+      _sum: { price: true }
+    }),
+
+    prisma.payment.findMany({
+      orderBy: { createdAt: "desc" },
+      take: 10,
+      select: {
+        id: true,
+        price: true,
+        status: true,
+        createdAt: true,
+        enrollment: {
+          select: {
+            student: {
+              select: { id: true, name: true, photoURL: true }
+            },
+            course: {
+              select: { id: true, title: true, thumbnail: true }
+            }
+          }
+        }
+      }
+    }),
+
+    // group by enrollment → later resolve course
+    prisma.payment.groupBy({
+      by: ["enrollmentId"],
+      where: { status: "SUCCESS" },
+      _sum: { price: true },
+      orderBy: { _sum: { price: "desc" } },
+      take: 5
+    }),
+
+    prisma.$queryRaw`
+      SELECT DATE("createdAt") as date,
+             SUM("price")::float as revenue
+      FROM "payments"
+      WHERE "status" = 'SUCCESS'
+        AND "createdAt" >= ${previous30Days}
+      GROUP BY DATE("createdAt")
+      ORDER BY date ASC
+    `
+  ]);
+
+  const enrollments = await prisma.enrollment.findMany({
+    where: {
+      id: { in: topEnrollments.map(e => e.enrollmentId) }
+    },
+    select: {
+      id: true,
+      course: {
+        select: { id: true, title: true }
+      }
+    }
+  });
+
+  const enrollmentToCourseMap = new Map(
+    enrollments.map(e => [e.id, e.course.title])
+  );
+
+  return {
+    totalRevenue: totalRevenueAgg._sum.price ?? 0,
+    revenueLast7Days: revenueLast7DaysAgg._sum.price ?? 0,
+    revenueLast30Days: revenueLast30DaysAgg._sum.price ?? 0,
+
+    charts: {
+
+      byStatus: paymentsByStatus.map(s => ({
+        label: s.status,
+        value: s._count._all
+      })),
+
+      revenueLast30Days: revenueChart,
+
+      topCourses: topEnrollments.map(e => ({
+        label: enrollmentToCourseMap.get(e.enrollmentId) ?? "Unknown",
+        value: e._sum.price ?? 0
+      }))
+    },
+
+    recentPayments
+  };
+};
 
 
-export const statsRepository = { userStats, courseStats ,enrollmentStats};
+
+
+const instructorDashboardStats = async (instructorId: string) => {
+
+  const courses = await prisma.course.findMany({
+    where: { instructorId },
+    select: { id: true, title: true }
+  });
+
+  const courseIds = courses.map(c => c.id);
+
+  if (!courseIds.length) {
+    return {
+      totalCourses: 0,
+      totalStudents: 0,
+      totalEnrollments: 0,
+      totalRevenue: 0,
+      charts: { revenueLast30Days: [], topCourses: [] },
+      recentEnrollments: []
+    };
+  }
+
+  const [
+    totalEnrollments,
+    totalStudentsDistinct,
+    totalRevenueAgg,
+    recentEnrollments,
+    revenueChart,
+    topCoursesRevenue
+  ] = await Promise.all([
+
+    prisma.enrollment.count({
+      where: { courseId: { in: courseIds } }
+    }),
+
+    prisma.enrollment.groupBy({
+      by: ["studentId"],
+      where: { courseId: { in: courseIds } },
+      _count: { _all: true }
+    }),
+
+    prisma.payment.aggregate({
+      where: {
+        status: "SUCCESS",
+        enrollment: {
+          courseId: { in: courseIds }
+        }
+      },
+      _sum: { price: true }
+    }),
+
+    prisma.enrollment.findMany({
+      where: { courseId: { in: courseIds } },
+      orderBy: { enrolledAt: "desc" },
+      take: 10,
+      select: {
+        id: true,
+        enrolledAt: true,
+        student: {
+          select: { id: true, name: true, photoURL: true }
+        },
+        course: {
+          select: { id: true, title: true, thumbnail: true }
+        }
+      }
+    }),
+
+    prisma.$queryRaw`
+      SELECT DATE(p."createdAt") as date,
+             SUM(p."price")::float as revenue
+      FROM "payments" p
+      JOIN "enrollments" e ON e.id = p."enrollmentId"
+      WHERE p."status"='SUCCESS'
+        AND e."courseId" IN (${Prisma.join(courseIds)})
+        AND p."createdAt" >= ${previous30Days}
+      GROUP BY DATE(p."createdAt")
+      ORDER BY date ASC
+    `,
+
+    prisma.payment.groupBy({
+      by: ["enrollmentId"],
+      where: {
+        status: "SUCCESS",
+        enrollment: { courseId: { in: courseIds } }
+      },
+      _sum: { price: true },
+      orderBy: { _sum: { price: "desc" } },
+      take: 5
+    })
+  ]);
+
+  const enrollmentIds = topCoursesRevenue.map(e => e.enrollmentId);
+
+  const enrollments = await prisma.enrollment.findMany({
+    where: { id: { in: enrollmentIds } },
+    select: {
+      id: true,
+      course: { select: { title: true } }
+    }
+  });
+
+  const enrollmentCourseMap = new Map(
+    enrollments.map(e => [e.id, e.course.title])
+  );
+
+  return {
+
+    totalCourses: courseIds.length,
+    totalEnrollments,
+    totalStudents: totalStudentsDistinct.length,
+    totalRevenue: totalRevenueAgg._sum.price ?? 0,
+
+    charts: {
+
+      revenueLast30Days: revenueChart,
+
+      topCourses: topCoursesRevenue.map(e => ({
+        label: enrollmentCourseMap.get(e.enrollmentId) ?? "Unknown",
+        value: e._sum.price ?? 0
+      }))
+    },
+
+    recentEnrollments
+  };
+};
+
+
+const studentDashboardStats = async (studentId: string) => {
+
+  const payments = await prisma.payment.findMany({
+    where: {
+      enrollment: { studentId }
+    },
+    select: {
+      id: true, price: true, status: true, transactionId: true,
+      enrollment: { select: { course: { select: { id: true, title: true, thumbnail: true } } } },
+      createdAt: true,
+    }
+  })
+
+  return payments.map(p => ({
+    id: p.id,
+    transactionId: p.transactionId,
+    amount: Number(p.price),
+    status: p.status,
+    course: {
+      id: p.enrollment.course.id,
+      title: p.enrollment.course.title,
+      thumbnail: p.enrollment.course.thumbnail
+    },
+    date: p.createdAt
+  }));
+
+}
+
+export const statsRepository = { userStats, courseStats, enrollmentStats, paymentStats, instructorDashboardStats, studentDashboardStats };
