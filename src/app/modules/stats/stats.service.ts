@@ -41,7 +41,17 @@ const getRole = (authUser: IAuthUser) => {
 const getStats = async (authUser) => {
   // const currentUserRole = getRole(authUser)
 
-  return await statsRepository.userStats()
+  const [ usersStats, courseStats ,enrollmentStats] = await Promise.all([
+
+    statsRepository.userStats(),
+
+    statsRepository.courseStats(),
+    
+    statsRepository.enrollmentStats()
+  ])
+
+
+  return { usersStats, courseStats,enrollmentStats }
 }
 
 export const statsService = { getStats }
