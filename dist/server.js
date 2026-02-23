@@ -5,7 +5,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const app_1 = __importDefault(require("./app"));
 const config_1 = __importDefault(require("./app/config"));
-const redis_1 = __importDefault(require("./app/config/redis"));
 const seedSuperAdmin_1 = __importDefault(require("./app/helper/seedSuperAdmin"));
 const startServer = async () => {
     let server;
@@ -15,8 +14,6 @@ const startServer = async () => {
             console.log(`⚡ Server is running on: http://localhost:${config_1.default.port}`);
         });
         await (0, seedSuperAdmin_1.default)();
-        await redis_1.default.connect();
-        console.log("📤 Redis connection established!");
         // Function to gracefully shut down the server
         const exitHandler = () => {
             if (server) {
