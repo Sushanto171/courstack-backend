@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { getCache, setCache } from "@/app/helper/cache";
 import { Role, UserStatus } from "../../../generated/prisma/enums";
 import { UserCreateInput, UserUpdateInput } from "../../../generated/prisma/models";
 import { permissions } from "../../config/permissions";
 import { ApiError } from "../../helper/ApiError";
+import { getCache, setCache } from "../../helper/cache";
 import httpStatus from "../../helper/httpStatusCode";
 import { invalidateUserCache } from "../../helper/invalidateUserCache";
 import { IAuthUser } from "../../types";

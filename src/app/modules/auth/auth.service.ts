@@ -1,8 +1,4 @@
-import config from "@/app/config";
-import { sendEmail } from "@/app/config/nodemailer";
-import { clearCache, getCache, setCache } from "@/app/helper/cache";
-import { IAuthUser } from "@/app/types";
-import { generateOTP } from "@/app/utils/generateOTP";
+
 import { JwtPayload } from "jsonwebtoken";
 import { ApiError } from "../../helper/ApiError";
 import { checkUserHealth } from "../../helper/checkUserHealth";
@@ -12,6 +8,11 @@ import { decodedJWT, generateAccessAndRefreshToken } from "../../utils/jwt";
 import { userRepository } from "../user/user.repository";
 import { userService } from "../user/user.service";
 import { IVerifyOtp, Login } from "./auth.validation";
+import { IAuthUser } from "../../types";
+import { clearCache, getCache, setCache } from "../../helper/cache";
+import { generateOTP } from "../../utils/generateOTP";
+import { sendEmail } from "../../config/nodemailer";
+import config from "../../config";
 
 const login = async (payload: Login) => {
 

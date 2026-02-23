@@ -1,6 +1,6 @@
-import { IAuthUser } from "@/app/types";
 import { ApiError } from "../../helper/ApiError";
 import httpStatus from "../../helper/httpStatusCode";
+import { IAuthUser } from "../../types";
 import catchAsync from "../../utils/catchAsync";
 import { setCookie } from "../../utils/cookie";
 import sendResponse from "../../utils/SendResponse";
