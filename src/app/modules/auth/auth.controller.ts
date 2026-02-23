@@ -33,10 +33,27 @@ const getMe = catchAsync(async (req, res) => {
   })
 })
 
+const refreshToken = catchAsync(async (req, res) => {
+  const token = req?.cookies?.refreshToken;
+  if (token) throw new ApiError(httpStatus.UNAUTHORIZED, "User no longer exists");
+
+  const tokens = await authService.refreshToken(token);
+
+  setCookie(res, tokens)
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "set new token successfully.",
+    data: null
+  })
+})
+
 
 
 
 export const authController = {
   login,
-  getMe
+  getMe,
+  refreshToken
 }

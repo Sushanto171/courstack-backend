@@ -1,8 +1,10 @@
+import config from "@/app/config";
+import { JwtPayload } from "jsonwebtoken";
 import { ApiError } from "../../helper/ApiError";
 import { checkUserHealth } from "../../helper/checkUserHealth";
 import httpStatus from "../../helper/httpStatusCode";
 import { comparePasswords } from "../../utils/bcrypt";
-import { generateAccessAndRefreshToken } from "../../utils/jwt";
+import { decodedJWT, generateAccessAndRefreshToken } from "../../utils/jwt";
 import { userRepository } from "../user/user.repository";
 import { Login } from "./auth.validation";
 
@@ -30,11 +32,22 @@ const login = async (payload: Login) => {
 
 const getMe = async (email: string) => {
   const data = await userRepository.findByEmail(email)
-
   return data
+}
+
+const refreshToken = async (refreshToken: string) => {
+  const decoded = decodedJWT(refreshToken, config.jwt.JWT_REFRESH_SECRET) as JwtPayload
+  const user = await userRepository.findByEmail(decoded.email);
+
+  if (!user) throw new ApiError(httpStatus.NOT_FOUND, "User not found");
+  const { id, name, email, role } = user
+  const userData = { id, name, email, role }
+
+  return generateAccessAndRefreshToken(userData)
 }
 
 export const authService = {
   login,
-  getMe
+  getMe,
+  refreshToken
 };

@@ -35,4 +35,10 @@ export default {
   },
   BACKEND_URL: process.env.BACKEND_URL,
   FRONTEND_URL: process.env.FRONTEND_URL,
+  SYSTEM_SECURITY_EMAIL: process.env.SYSTEM_SECURITY_EMAIL,
+  SYSTEM_INFO_EMAIL: process.env.SYSTEM_INFO_EMAIL,
+  nodeMailer: {
+    APP_PASS: process.env.APP_PASS,
+    APP_USER: process.env.APP_USER,
+  }
 }
