@@ -2,7 +2,6 @@ import cookieParser from "cookie-parser"
 import cors from "cors"
 import dotenv from 'dotenv'
 import express, { Application } from "express"
-import { cronJob } from "./app/jobs"
 import { globalError } from "./app/middleware/globalError"
 import { notFound } from "./app/middleware/notFound"
 import router from "./app/routes"
@@ -19,7 +18,6 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/api/v1", router);
 
-cronJob()
 
 app.get("/", (req, res) => {
   const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;

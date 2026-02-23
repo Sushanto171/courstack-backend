@@ -1,6 +1,6 @@
 import cron from 'node-cron';
-import { LessonStatus } from '../../generated/prisma/enums';
-import { prisma } from '../config/prisma';
+import { LessonStatus } from '../../../generated/prisma/enums';
+import { prisma } from '../../config/prisma';
 
 const publishScheduledLesson = async () => {
   const now = new Date();
@@ -14,11 +14,11 @@ const publishScheduledLesson = async () => {
     },
     data: {
       status: LessonStatus.PUBLISHED,
-      publishedAt: now, 
+      publishedAt: now,
     },
   });
 };
-export const cronJob = () => {
+export const cronJob = async () => {
   cron.schedule('* * * * *', async () => {
     try {
       const now = new Date();
