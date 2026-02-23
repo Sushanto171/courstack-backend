@@ -1,10 +1,18 @@
+
+import { JwtPayload } from "jsonwebtoken";
 import { ApiError } from "../../helper/ApiError";
 import { checkUserHealth } from "../../helper/checkUserHealth";
 import httpStatus from "../../helper/httpStatusCode";
 import { comparePasswords } from "../../utils/bcrypt";
-import { generateAccessAndRefreshToken } from "../../utils/jwt";
+import { decodedJWT, generateAccessAndRefreshToken } from "../../utils/jwt";
 import { userRepository } from "../user/user.repository";
-import { Login } from "./auth.validation";
+import { userService } from "../user/user.service";
+import { IVerifyOtp, Login } from "./auth.validation";
+import { IAuthUser } from "../../types";
+import { clearCache, getCache, setCache } from "../../helper/cache";
+import { generateOTP } from "../../utils/generateOTP";
+import { sendEmail } from "../../config/nodemailer";
+import config from "../../config";
 
 const login = async (payload: Login) => {
 
@@ -29,12 +37,65 @@ const login = async (payload: Login) => {
 };
 
 const getMe = async (email: string) => {
-  const data = await userRepository.findByEmail(email)
-
+  const data = await userService.verifyUser(email)
   return data
+}
+
+const refreshToken = async (refreshToken: string) => {
+  const decoded = decodedJWT(refreshToken, config.jwt.JWT_REFRESH_SECRET) as JwtPayload
+  const user = await userService.verifyUser(decoded.email)
+  const { id, name, email, role } = user
+  const userData = { id, name, email, role }
+
+  return generateAccessAndRefreshToken(userData)
+}
+
+const getVerifyOtp = async (authUser: IAuthUser) => {
+  const user = await userService.verifyUser(authUser.email);
+
+  const otp = generateOTP();
+
+  const cacheKey = `verify:${user.email}`
+
+  const cached = await setCache(cacheKey, otp, 5);
+
+  if (cached) {
+    // send email
+    await sendEmail({
+      email: user.email,
+      purpose: "Security",
+      senderEmail: config.SYSTEM_SECURITY_EMAIL,
+      subject: "Account Verify OTP",
+      otp
+    })
+    return { redirectUrl: `${config.FRONTEND_URL}/verify?email=${user.email}` }
+  }
+  throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, "Please try again.")
+}
+
+const verify = async (authUser: IAuthUser, payload: IVerifyOtp) => {
+
+  const user = await userService.verifyUser(authUser.email);
+
+  if (user.isVerified) throw new ApiError(httpStatus.BAD_REQUEST, "You are already verified!")
+
+  const cacheKey = `verify:${user.email}`;
+
+  const cached = await getCache(cacheKey);
+
+  if (!cached) throw new ApiError(httpStatus.BAD_REQUEST, "Expired or Invalid OTP");
+
+  const testOTP = "123456" //for development
+  if (!testOTP || cached !== payload.otp) throw new ApiError(httpStatus.BAD_REQUEST, "Incorrect OTP")
+  await clearCache(cacheKey)
+
+  return await userRepository.updateByEmail(user.email, { isVerified: true })
 }
 
 export const authService = {
   login,
-  getMe
+  getMe,
+  refreshToken,
+  verify,
+  getVerifyOtp
 };

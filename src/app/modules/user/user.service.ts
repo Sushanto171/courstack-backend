@@ -2,8 +2,8 @@
 import { Role, UserStatus } from "../../../generated/prisma/enums";
 import { UserCreateInput, UserUpdateInput } from "../../../generated/prisma/models";
 import { permissions } from "../../config/permissions";
-import redisClient from "../../config/redis";
 import { ApiError } from "../../helper/ApiError";
+import { getCache, setCache } from "../../helper/cache";
 import httpStatus from "../../helper/httpStatusCode";
 import { invalidateUserCache } from "../../helper/invalidateUserCache";
 import { IAuthUser } from "../../types";
@@ -20,7 +20,16 @@ interface IGetUserWithPermission {
   permissions: string[];
 }
 
-const getUsersFromDB = async (authRole: Role, query:IUserQuery) => {
+
+const verifyUser = async (email: string) => {
+  const user = await userRepository.findByEmail(email);
+
+  if (!user) throw new ApiError(httpStatus.NOT_FOUND, "User no longer exists")
+
+  return user
+}
+
+const getUsersFromDB = async (authRole: Role, query: IUserQuery) => {
 
   const users = await userRepository.findAll(query)
 
@@ -29,6 +38,10 @@ const getUsersFromDB = async (authRole: Role, query:IUserQuery) => {
 
 const createUser = async (payload: UserCreateInput) => {
 
+  const user = await userRepository.findByEmail(payload.email);
+
+  if (user) throw new ApiError(httpStatus.CONFLICT, "This email already exist in database");
+
   payload.password = await hashPassword(payload.password)
 
   const res = await userRepository.create(payload)
@@ -36,6 +49,9 @@ const createUser = async (payload: UserCreateInput) => {
 }
 
 const createAdmin = async (payload: UserCreateInput) => {
+
+  const user = await userRepository.findByEmail(payload.email);
+  if (user) throw new ApiError(httpStatus.CONFLICT, "This email already exist in database");
 
   payload.password = await hashPassword(payload.password)
   payload.role = Role.ADMIN
@@ -46,9 +62,7 @@ const createAdmin = async (payload: UserCreateInput) => {
 }
 
 const updateStatus = async (authRole: Role, payload: UpdateUserStatus) => {
-  const isExist = await userRepository.findByEmail(payload.email);
-
-  if (!isExist) throw new ApiError(httpStatus.NOT_FOUND, "User not found!");
+  const isExist = await verifyUser(payload.email)
 
   if (authRole === Role.ADMIN && !(isExist.role === Role.INSTRUCTOR || isExist.role === Role.STUDENT)) throw new ApiError(httpStatus.FORBIDDEN, "Forbidden access!")
 
@@ -104,13 +118,10 @@ const getUserWithPermissions = async (email: string): Promise<IGetUserWithPermis
 
   const cacheKey = `auth:user:${email}`;
 
-  const cached = await redisClient?.get(cacheKey);
-  // return from cache
-  if (cached) return JSON.parse(cached);
+  const cached = await getCache(cacheKey);
+  if (cached) return cached;
 
-  const isExist = await userRepository.findByEmail(email);
-
-  if (!isExist) throw new ApiError(httpStatus.UNAUTHORIZED, "User no longer exists");
+  const isExist = await verifyUser(email)
 
   const rolePermissions = permissions.getPermissionsForRole(isExist.role)
 
@@ -124,12 +135,13 @@ const getUserWithPermissions = async (email: string): Promise<IGetUserWithPermis
   }
 
   // store cache
-  await redisClient?.set(cacheKey, JSON.stringify(user), { expiration: { type: "EX", value: 900 } });
+  await setCache(cacheKey, user, 15)
 
   return user
 }
 
 export const userService = {
+  verifyUser,
   getUsersFromDB,
   createUser,
   createAdmin,

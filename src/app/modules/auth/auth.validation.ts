@@ -11,10 +11,17 @@ const loginSchema = z.object({
     .min(1, 'Password is required'),
 });
 
+const verifySchema = z.object({
+  otp: z.string("OTP is required").length(6, "OTP must be 6 digit")
+})
+
 export const authValidation = {
-  loginSchema
+  loginSchema,
+  verifySchema
 }
 
 type Login = z.infer<typeof loginSchema>;
+type IVerifyOtp = z.infer<typeof verifySchema>;
 
-export type { Login };
+export type { IVerifyOtp, Login };
+

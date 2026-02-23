@@ -10,14 +10,7 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "declaration": false,
-    "sourceMap": true,
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["src/*"],
-      "@config/*": ["src/config/*"],
-      "@modules/*": ["src/modules/*"],
-      "@utils/*": ["src/utils/*"]
-    }
+    "sourceMap": true
   },
   "include": ["src"],
   "exclude": ["node_modules", "dist"]

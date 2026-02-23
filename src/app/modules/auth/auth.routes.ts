@@ -7,8 +7,16 @@ import { authValidation } from "./auth.validation";
 
 const router = Router();
 
-router.get("/me", authenticate, authController.getMe)
+router.get("/me", authenticate, authController.getMe);
 
-router.post("/login", validateRequest(authValidation.loginSchema), authController.login)
+router.get("/refresh", authController.refreshToken);
+
+router.get("/get-otp", authenticate, authController.getVerifyOtp)
+
+router.post("/login", validateRequest(authValidation.loginSchema), authController.login);
+
+router.post("/verify", authenticate, validateRequest(authValidation.verifySchema), authController.verify);
+
+
 
 export const authRoutes = router
