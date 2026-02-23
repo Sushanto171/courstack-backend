@@ -1,16 +1,21 @@
-import app from "./app";
-import config from "./app/config";
-import redisClient from "./app/config/redis";
-import seedSuperAdmin from "./app/helper/seedSuperAdmin";
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const app_1 = __importDefault(require("./app"));
+const config_1 = __importDefault(require("./app/config"));
+const redis_1 = __importDefault(require("./app/config/redis"));
+const seedSuperAdmin_1 = __importDefault(require("./app/helper/seedSuperAdmin"));
 const startServer = async () => {
     let server;
     try {
         // Start the server
-        server = app.listen(config.port, () => {
-            console.log(`⚡ Server is running on: http://localhost:${config.port}`);
+        server = app_1.default.listen(config_1.default.port, () => {
+            console.log(`⚡ Server is running on: http://localhost:${config_1.default.port}`);
         });
-        await seedSuperAdmin();
-        await redisClient.connect();
+        await (0, seedSuperAdmin_1.default)();
+        await redis_1.default.connect();
         console.log("📤 Redis connection established!");
         // Function to gracefully shut down the server
         const exitHandler = () => {
@@ -48,3 +53,4 @@ const startServer = async () => {
     }
 };
 startServer();
+//# sourceMappingURL=server.js.map

@@ -2,17 +2,16 @@
   "name": "courstack-backend",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
-  "type": "module",
+  "main": "dist/server.js",
   "scripts": {
-    "start": "node run ./dist/server.js",
-    "dev": "bun --watch src/server.ts",
+    "start": "node dist/server.js",
+    "dev": "tsx watch src/server.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "npx eslint ./src",
-    "build": "tsc",
+    "build": "prisma generate && tsc",
     "migrate": "npx prisma migrate dev",
     "generate": "npx prisma generate",
-    "vercel-build": "prisma generate && next build"
+    "vercel-build": "prisma generate && tsc"
   },
   "keywords": [],
   "author": "",
@@ -33,12 +32,12 @@
     "node-cron": "^4.2.1",
     "pg": "^8.18.0",
     "redis": "^5.11.0",
-    "zod": "^4.3.6"
+    "zod": "^4.3.6",
+    "@prisma/client": "^7.4.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@prisma/adapter-pg": "^7.4.0",
-    "@prisma/client": "^7.4.0",
     "@types/bcrypt": "^6.0.0",
     "@types/cookie-parser": "^1.4.10",
     "@types/cors": "^2.8.19",
