@@ -2,6 +2,7 @@ import { Router } from "express";
 import { authRoutes } from "../modules/auth/auth.routes";
 import { categoryRoutes } from "../modules/category/category.routes";
 import { courseRoutes } from "../modules/course/course.routes";
+import { cronRoutes } from "../modules/cron/cron.routes";
 import { enrollmentRoutes } from "../modules/enrollment/enrollment.routes";
 import { lessonRoutes } from "../modules/lesson/lesson.routes";
 import { paymentRoutes } from "../modules/payment/payment.routes";
@@ -47,6 +48,10 @@ const routes: Routes[] = [
   {
     router: statsRoutes,
     path: "/stats"
+  },
+  {
+    router: cronRoutes,
+    path: "/cron"
   },
 ];
 

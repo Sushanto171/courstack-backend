@@ -40,5 +40,6 @@ export default {
   nodeMailer: {
     APP_PASS: process.env.APP_PASS,
     APP_USER: process.env.APP_USER,
-  }
+  },
+  CRON_SECRET: process.env.CRON_SECRET
 }
