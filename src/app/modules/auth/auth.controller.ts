@@ -1,3 +1,4 @@
+import { IAuthUser } from "@/app/types";
 import { ApiError } from "../../helper/ApiError";
 import httpStatus from "../../helper/httpStatusCode";
 import catchAsync from "../../utils/catchAsync";
@@ -35,7 +36,8 @@ const getMe = catchAsync(async (req, res) => {
 
 const refreshToken = catchAsync(async (req, res) => {
   const token = req?.cookies?.refreshToken;
-  if (token) throw new ApiError(httpStatus.UNAUTHORIZED, "User no longer exists");
+
+  if (!token) throw new ApiError(httpStatus.UNAUTHORIZED, "User no longer exists");
 
   const tokens = await authService.refreshToken(token);
 
@@ -50,10 +52,41 @@ const refreshToken = catchAsync(async (req, res) => {
 })
 
 
+const getVerifyOtp = catchAsync(async (req, res) => {
+
+  const { redirectUrl } = await authService.getVerifyOtp(req.user as IAuthUser)
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Please check your email.",
+    data: redirectUrl
+  })
+
+  // return res.redirect(httpStatus.TEMPORARY_REDIRECT, redirectUrl);
+
+})
+
+
+const verify = catchAsync(async (req, res) => {
+
+  const data = await authService.verify(req.user as IAuthUser, req.body)
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Account verified successfully.",
+    data
+  })
+
+})
+
 
 
 export const authController = {
   login,
   getMe,
-  refreshToken
+  refreshToken,
+  getVerifyOtp,
+  verify
 }
