@@ -16,14 +16,12 @@ router.get("/my-courses", validateQuery(courseValidation.courseQuerySchema), aut
 
 router.get("/:slug", courseController.getBySlug)
 
-router.use(authenticate);
+router.post("/", authenticate, authorize(PERMISSIONS.COURSE_CREATE), upload.single("file"), validateRequest(courseValidation.createCourse), courseController.create);
 
-router.post("/", authorize(PERMISSIONS.COURSE_CREATE), upload.single("file"), validateRequest(courseValidation.createCourse), courseController.create);
+router.patch("/status/:id", authenticate, validateRequest(courseValidation.updateCourseStatus), authorize(PERMISSIONS.COURSE_STATUS_UPDATE), courseController.updateStatus);
 
-router.patch("/status/:id", validateRequest(courseValidation.updateCourseStatus), authorize(PERMISSIONS.COURSE_STATUS_UPDATE), courseController.updateStatus);
+router.patch("/:id", authenticate, authorize(PERMISSIONS.COURSE_UPDATE_OWN), upload.single("file"), validateRequest(courseValidation.createCourse), courseController.update);
 
-router.patch("/:id", authorize(PERMISSIONS.COURSE_UPDATE_OWN), upload.single("file"), validateRequest(courseValidation.createCourse), courseController.update);
-
-router.delete("/soft/:id", authorize(PERMISSIONS.COURSE_DELETE_OWN), courseController.softDelete);
+router.delete("/soft/:id", authenticate, authorize(PERMISSIONS.COURSE_DELETE_OWN), courseController.softDelete);
 
 export const courseRoutes = router
