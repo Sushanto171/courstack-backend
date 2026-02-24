@@ -27,16 +27,11 @@ const verifyCourseOwnership = async (instructorId: string, courseId: string) => 
 // anyone can view all (published) lessons (course overview) 
 // owner can view own draft, schedule, published lessons
 const getLessonsByCourseId = async (authUser: IAuthUser, courseId: string) => {
+
   await courseService.verifyCourseExist(courseId);
 
-
-  const ifEnrolled = await enrollRepository.getOne({ studentId_courseId: { studentId: authUser.id, courseId } }, { lastAccessAt: true, lastAccessLessonOrder: true });
-
-
-
   const lessons = await lessonRepository.getLessonsByCourseId({
-    courseId,
-    // status: isOwner ? undefined : LessonStatus.PUBLISHED,
+    courseId
   },
     {
       id: true,
@@ -46,9 +41,12 @@ const getLessonsByCourseId = async (authUser: IAuthUser, courseId: string) => {
       courseId: true,
       status: true,
     },
-
+    
   )
 
+  
+  const ifEnrolled = await enrollRepository.getOne({ studentId_courseId: { studentId: authUser.id, courseId } }, { lastAccessAt: true, lastAccessLessonOrder: true });
+  
   return { data: lessons, meta: ifEnrolled }
 }
 

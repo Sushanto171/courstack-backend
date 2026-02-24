@@ -8,7 +8,7 @@ import { authService } from "./auth.service";
 
 const login = catchAsync(async (req, res) => {
 
-  const { userData: data, tokens } = await authService.login(req.body)
+  const { userData, tokens } = await authService.login(req.body)
 
   setCookie(res, tokens)
 
@@ -16,7 +16,7 @@ const login = catchAsync(async (req, res) => {
     statusCode: httpStatus.OK,
     success: true,
     message: "Logged in successfully",
-    data
+    data: { userData, tokens }
   })
 })
 
@@ -47,7 +47,7 @@ const refreshToken = catchAsync(async (req, res) => {
     statusCode: httpStatus.OK,
     success: true,
     message: "set new token successfully.",
-    data: null
+    data: tokens
   })
 })
 
@@ -80,7 +80,6 @@ const verify = catchAsync(async (req, res) => {
   })
 
 })
-
 
 
 export const authController = {
