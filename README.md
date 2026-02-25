@@ -27,7 +27,7 @@
 ### Key Capabilities
 
 - Role-based access control (SUPER_ADMIN, ADMIN, INSTRUCTOR, STUDENT)
-- Full course lifecycle: create, publish, archive, soft-delete
+- Full course lifecycle: create, pending review, publish, archive, soft-delete
 - Nested lesson management with video support and progress tracking
 - Enrollment system with payment status tracking
 - OTP-based email verification via Nodemailer
@@ -201,14 +201,14 @@ SUPER_ADMIN_PASSWORD=
 
 ```bash
 # 1. Login with any test account
-POST https://courstakc-backend.vercel.app/auth/login
+POST https://courstack-backend.vercel.app/api/v1/auth/login
 {
   "email": "student@courstack.com",
   "password": "Student@1"
 }
 
 # 2. Verify OTP if required
-POST https://courstakc-backend.vercel.app/auth/verify
+POST https://courstack-backend.vercel.app/api/v1/auth/verify
 {
   "otp": "<otp_from_email> or 123456 (only for test)"
 }
