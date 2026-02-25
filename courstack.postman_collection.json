@@ -1,0 +1,934 @@
+{
+  "info": {
+    "_postman_id": "5cf10809-70b3-4c70-b6ff-90ac0ad848e2",
+    "name": "courstack",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "40145161"
+  },
+  "item": [
+    {
+      "name": "user",
+      "item": [
+        {
+          "name": "getUsers",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{local}}/user",
+              "host": [
+                "{{local}}"
+              ],
+              "path": [
+                "user"
+              ],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "sushanto",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "createAdmin",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\" : \"Admin\",\r\n    \"email\": \"admin@gmail.com\", \r\n    \"password\": \"Password123@\",\r\n    \"gender\":\"MALE\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{local}}/user/create-admin",
+              "host": [
+                "{{local}}"
+              ],
+              "path": [
+                "user",
+                "create-admin"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "createUser",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\" : \"INSTRUCTOR\",\r\n    \"email\": \"instructor1@gmail.com\", \r\n    \"password\": \"Password123@\",\r\n    \"gender\":\"MALE\",\r\n    \"role\": \"INSTRUCTOR\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{local}}/user",
+              "host": [
+                "{{local}}"
+              ],
+              "path": [
+                "user"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "updateStatus",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"test3@gmail.com\", \r\n    \"status\": \"SUSPENDED\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{local}}/user/update-status",
+              "host": [
+                "{{local}}"
+              ],
+              "path": [
+                "user",
+                "update-status"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "update user",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\":\"Instructor\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{local}}/user/80d2c79b-1794-45f1-a5bf-5eb1761f75ec",
+              "host": [
+                "{{local}}"
+              ],
+              "path": [
+                "user",
+                "80d2c79b-1794-45f1-a5bf-5eb1761f75ec"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "auth",
+      "item": [
+        {
+          "name": "login",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "// {\r\n//     \"email\": \"sushantokumar171@gmail.com\", \r\n//     \"password\": \"Password123@\"\r\n// }\r\n// {\r\n//     \"email\": \"test4@gmail.com\", \r\n//     \"password\": \"Password123@\"\r\n// }\r\n\r\n// {\r\n//     \"email\": \"instructor1@gmail.com\", \r\n//     \"password\": \"Password123@\"\r\n// }\r\n\r\n\r\n// {\r\n//     \"email\": \"admin@gmail.com\", \r\n//     \"password\": \"Password123@\"\r\n// }\r\n\r\n{\r\n    \"email\": \"superadmin@courstack.com\", \r\n    \"password\": \"SuperSecret123!\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{local}}/auth/login",
+              "host": [
+                "{{local}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "veify",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n   \"otp\": \"707444\"\r\n}\r\n// {\r\n//     \"email\": \"test4@gmail.com\", \r\n//     \"password\": \"Password123@\"\r\n// }\r\n\r\n// {\r\n//     \"email\": \"instructor1@gmail.com\", \r\n//     \"password\": \"Password123@\"\r\n// }\r\n\r\n\r\n// {\r\n//     \"email\": \"admin@gmail.com\", \r\n//     \"password\": \"Password123@\"\r\n// }\r\n\r\n// {\r\n//     \"email\": \"superadmin@courstack.com\", \r\n//     \"password\": \"SuperSecret123!\"\r\n// }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{local}}/auth/verify",
+              "host": [
+                "{{local}}"
+              ],
+              "path": [
+                "auth",
+                "verify"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "getMe",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"test3@gmail.com\", \r\n    \"password\": \"Password123@\"\r\n    \r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{local}}/auth/me",
+              "host": [
+                "{{local}}"
+              ],
+              "path": [
+                "auth",
+                "me"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get verify otp",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"test3@gmail.com\", \r\n    \"password\": \"Password123@\"\r\n    \r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{local}}/auth/get-otp",
+              "host": [
+                "{{local}}"
+              ],
+              "path": [
+                "auth",
+                "get-otp"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "refresh token",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"test3@gmail.com\", \r\n    \"password\": \"Password123@\"\r\n    \r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{local}}/auth/refresh",
+              "host": [
+                "{{local}}"
+              ],
+              "path": [
+                "auth",
+                "refresh"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "category",
+      "item": [
+        {
+          "name": "create",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\": \"Javascript\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{local}}/category",
+              "host": [
+                "{{local}}"
+              ],
+              "path": [
+                "category"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "update",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\": \"Javascript\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{local}}/category/fdc8c9a0-6b57-4fc1-83fa-0efae3d86e8c",
+              "host": [
+                "{{local}}"
+              ],
+              "path": [
+                "category",
+                "fdc8c9a0-6b57-4fc1-83fa-0efae3d86e8c"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get all",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{local}}/category",
+              "host": [
+                "{{local}}"
+              ],
+              "path": [
+                "category"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get by slug",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{local}}/category/javascript",
+              "host": [
+                "{{local}}"
+              ],
+              "path": [
+                "category",
+                "javascript"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "course",
+      "item": [
+        {
+          "name": "create-course",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"title\": \"Complete Nextjs Bootcamp\",\r\n  \"overview\": \"Learn Nextjs from basics to advanced with real projects.\",\r\n  \"description\": \"This course covers ReactNextjs fundamentals, hooks, routing, state management, performance optimization, and deployment.\",\r\n  \"price\": 5000,\r\n  \"totalLessons\": 20,\r\n  \"categoryId\": \"fdc8c9a0-6b57-4fc1-83fa-0efae3d86e8c\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{local}}/course",
+              "host": [
+                "{{local}}"
+              ],
+              "path": [
+                "course"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "updateById",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"title\": \"Complete React Bootcamp\",\r\n  \"overview\": \"Learn React from basics to advanced with real projects.\",\r\n  \"description\": \"This course covers React fundamentals, hooks, routing, state management, performance optimization, and deployment.\",\r\n  \"price\": 49.99,\r\n  \"categoryId\": \"fdc8c9a0-6b57-4fc1-83fa-0efae3d86e8c\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{local}}/course/6653f9ca-fd2b-4686-adab-e10218e48412",
+              "host": [
+                "{{local}}"
+              ],
+              "path": [
+                "course",
+                "6653f9ca-fd2b-4686-adab-e10218e48412"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "updateStatus ById",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n   \"status\": \"PUBLISHED\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{local}}/course/status/724d24af-0f80-4b8c-bf32-094bb9c6c250",
+              "host": [
+                "{{local}}"
+              ],
+              "path": [
+                "course",
+                "status",
+                "724d24af-0f80-4b8c-bf32-094bb9c6c250"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "soft delete by id",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"title\": \"Complete React Bootcamp\",\r\n  \"overview\": \"Learn React from basics to advanced with real projects.\",\r\n  \"description\": \"This course covers React fundamentals, hooks, routing, state management, performance optimization, and deployment.\",\r\n  \"price\": 49.99,\r\n  \"categoryId\": \"fdc8c9a0-6b57-4fc1-83fa-0efae3d86e8c\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{local}}/course/soft/6653f9ca-fd2b-4686-adab-e10218e48412",
+              "host": [
+                "{{local}}"
+              ],
+              "path": [
+                "course",
+                "soft",
+                "6653f9ca-fd2b-4686-adab-e10218e48412"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get all",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"title\": \"Complete React Bootcamp\",\r\n  \"overview\": \"Learn React from basics to advanced with real projects.\",\r\n  \"description\": \"This course covers React fundamentals, hooks, routing, state management, performance optimization, and deployment.\",\r\n  \"price\": 49.99,\r\n  \"categoryId\": \"fdc8c9a0-6b57-4fc1-83fa-0efae3d86e8c\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{local}}/course",
+              "host": [
+                "{{local}}"
+              ],
+              "path": [
+                "course"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "DRAFT",
+                  "disabled": true
+                },
+                {
+                  "key": "status",
+                  "value": "PUBLISHED",
+                  "disabled": true
+                },
+                {
+                  "key": "limit",
+                  "value": "1",
+                  "disabled": true
+                },
+                {
+                  "key": "order",
+                  "value": "asc",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get by slug",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"title\": \"Complete React Bootcamp\",\r\n  \"overview\": \"Learn React from basics to advanced with real projects.\",\r\n  \"description\": \"This course covers React fundamentals, hooks, routing, state management, performance optimization, and deployment.\",\r\n  \"price\": 49.99,\r\n  \"categoryId\": \"fdc8c9a0-6b57-4fc1-83fa-0efae3d86e8c\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{local}}/course/complete_nextjs_bootcamp",
+              "host": [
+                "{{local}}"
+              ],
+              "path": [
+                "course",
+                "complete_nextjs_bootcamp"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get my courses",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"title\": \"Complete React Bootcamp\",\r\n  \"overview\": \"Learn React from basics to advanced with real projects.\",\r\n  \"description\": \"This course covers React fundamentals, hooks, routing, state management, performance optimization, and deployment.\",\r\n  \"price\": 49.99,\r\n  \"categoryId\": \"fdc8c9a0-6b57-4fc1-83fa-0efae3d86e8c\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{local}}/course/my-courses",
+              "host": [
+                "{{local}}"
+              ],
+              "path": [
+                "course",
+                "my-courses"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "lesson",
+      "item": [
+        {
+          "name": "add lesson",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"title\": \"Lesson 7\",\r\n  \"text\":\"lessons 7 content\",\r\n  \"order\": 7,\r\n  \"isPreview\": false\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{local}}/course/724d24af-0f80-4b8c-bf32-094bb9c6c250/lessons",
+              "host": [
+                "{{local}}"
+              ],
+              "path": [
+                "course",
+                "724d24af-0f80-4b8c-bf32-094bb9c6c250",
+                "lessons"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get course lessons overview",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{local}}/course/724d24af-0f80-4b8c-bf32-094bb9c6c250/lessons",
+              "host": [
+                "{{local}}"
+              ],
+              "path": [
+                "course",
+                "724d24af-0f80-4b8c-bf32-094bb9c6c250",
+                "lessons"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get one lesson",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"title\": \"Express.js Middleware Deep Dive\",\r\n  \"order\": 1,\r\n  \"isPreview\": false\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{local}}/course/724d24af-0f80-4b8c-bf32-094bb9c6c250/lessons/7f282b27-4952-4792-807b-590cc2c17659",
+              "host": [
+                "{{local}}"
+              ],
+              "path": [
+                "course",
+                "724d24af-0f80-4b8c-bf32-094bb9c6c250",
+                "lessons",
+                "7f282b27-4952-4792-807b-590cc2c17659"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "update lesson",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"title\": \"Express.js Middleware Deep Dive\",\r\n  \"order\": 1,\r\n  \"isPreview\": true,\r\n  \"videos\": [\r\n    {\r\n    \"title\": \"video1\",\r\n    \"order\": 1,\r\n    \"duration\": 10,\r\n    \"url\" :\"https://link1.com\"\r\n    }\r\n  ]\r\n  }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{local}}/course/724d24af-0f80-4b8c-bf32-094bb9c6c250/lessons/0e14ffc7-7299-4db0-a2e5-0a1be874e678",
+              "host": [
+                "{{local}}"
+              ],
+              "path": [
+                "course",
+                "724d24af-0f80-4b8c-bf32-094bb9c6c250",
+                "lessons",
+                "0e14ffc7-7299-4db0-a2e5-0a1be874e678"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "lesson status",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n \"status\":\"DRAFT\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{local}}/course/724d24af-0f80-4b8c-bf32-094bb9c6c250/lessons/0e14ffc7-7299-4db0-a2e5-0a1be874e678/status",
+              "host": [
+                "{{local}}"
+              ],
+              "path": [
+                "course",
+                "724d24af-0f80-4b8c-bf32-094bb9c6c250",
+                "lessons",
+                "0e14ffc7-7299-4db0-a2e5-0a1be874e678",
+                "status"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "lesson progress",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"order\": 4 }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{local}}/course/724d24af-0f80-4b8c-bf32-094bb9c6c250/lessons/7f282b27-4952-4792-807b-590cc2c17659/progress",
+              "host": [
+                "{{local}}"
+              ],
+              "path": [
+                "course",
+                "724d24af-0f80-4b8c-bf32-094bb9c6c250",
+                "lessons",
+                "7f282b27-4952-4792-807b-590cc2c17659",
+                "progress"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "enrollment",
+      "item": [
+        {
+          "name": "join",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"courseId\": \"724d24af-0f80-4b8c-bf32-094bb9c6c250\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{local}}/enrollment",
+              "host": [
+                "{{local}}"
+              ],
+              "path": [
+                "enrollment"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "my enrollment",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"test3@gmail.com\", \r\n    \"password\": \"Password123@\"\r\n    \r\n}"
+            },
+            "url": {
+              "raw": "{{local}}/enrollment/my-enrollments",
+              "host": [
+                "{{local}}"
+              ],
+              "path": [
+                "enrollment",
+                "my-enrollments"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get all enrolls in course",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"test3@gmail.com\", \r\n    \"password\": \"Password123@\"\r\n    \r\n}"
+            },
+            "url": {
+              "raw": "{{local}}/enrollment/724d24af-0f80-4b8c-bf32-094bb9c6c250",
+              "host": [
+                "{{local}}"
+              ],
+              "path": [
+                "enrollment",
+                "724d24af-0f80-4b8c-bf32-094bb9c6c250"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "stats",
+      "item": [
+        {
+          "name": "stats",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"test3@gmail.com\", \r\n    \"password\": \"Password123@\"\r\n    \r\n}"
+            },
+            "url": {
+              "raw": "{{local}}/stats",
+              "host": [
+                "{{local}}"
+              ],
+              "path": [
+                "stats"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "local",
+      "value": ""
+    },
+    {
+      "key": "production",
+      "value": ""
+    },
+    {
+      "key": "development",
+      "value": ""
+    }
+  ]
+}
