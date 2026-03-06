@@ -9,6 +9,7 @@ import sendResponse from "../utils/SendResponse";
 export const globalError = (error: any, req: Request, res: Response, _next: NextFunction) => {
   let statusCode = error?.statusCode || httpStatus.INTERNAL_SERVER_ERROR;
   let message = error?.message || "Something want wrong!"
+  console.log(error.stack);
 
   // prisma
   if (error instanceof Prisma.PrismaClientKnownRequestError) {

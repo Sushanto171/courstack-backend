@@ -53,7 +53,7 @@ const findAll = async (query: IUserQuery) => {
     }),
   };
 
-  const [data, total] = await prisma.$transaction([
+  const [data, total] = await Promise.all([
     prisma.user.findMany({
       where,
       omit: {
@@ -64,7 +64,7 @@ const findAll = async (query: IUserQuery) => {
       orderBy: { [sortBy]: order }
     }),
     prisma.user.count({ where })
-  ])
+  ],)
 
   const meta = {
     limit: take,
