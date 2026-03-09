@@ -12,8 +12,7 @@ const create = (data: UserCreateInput) => {
 };
 
 const findAll = async (query: IUserQuery) => {
-
-  const { take, skip, order, page, sortBy, rest } = pickPagination(query);
+  const { take, skip, order, page, sortBy, cursor, rest } = pickPagination(query);
 
   const {
     id,
@@ -56,23 +55,29 @@ const findAll = async (query: IUserQuery) => {
   const [data, total] = await Promise.all([
     prisma.user.findMany({
       where,
-      omit: {
-        password: true
-      },
+      omit: { password: true },
       take,
       skip,
-      orderBy: { [sortBy]: order }
+      ...(cursor && { cursor: { id: cursor } }),
+      orderBy: sortBy === "id"
+        ? [{ id: order }]
+        : [{ [sortBy]: order }, { id: "asc" }],
     }),
-    prisma.user.count({ where })
-  ],)
+    prisma.user.count({ where }),
+  ]);
+
+  const hasMore = data.length > take - 1;
+  if (hasMore) data.pop();
+  const nextCursor = hasMore ? data[data.length - 1].id : null;
 
   const meta = {
-    limit: take,
-    page,
+    limit: take - 1,
     total,
-    totalPages: Math.ceil(total / take)
-  }
-  return { data, meta }
+    hasMore, nextCursor,
+    page, totalPages: Math.ceil(total / (take - 1))
+  };
+
+  return { data, meta };
 };
 
 const findByEmail = (email: string, omitPassword = true) => {

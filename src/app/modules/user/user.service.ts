@@ -31,8 +31,7 @@ const verifyUser = async (email: string) => {
 
 const getUsersFromDB = async (authRole: Role, query: IUserQuery) => {
 
-  const users = await userRepository.findAll(query)
-
+  const users = await userRepository.findAll(query);
   return users
 };
 
