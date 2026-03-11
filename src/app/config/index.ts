@@ -38,8 +38,8 @@ export default {
   SYSTEM_SECURITY_EMAIL: process.env.SYSTEM_SECURITY_EMAIL as string,
   SYSTEM_INFO_EMAIL: process.env.SYSTEM_INFO_EMAIL as string,
   nodeMailer: {
-    APP_PASS: process.env.APP_PASS,
-    APP_USER: process.env.APP_USER,
+    APP_PASS: process.env.APP_PASS as string,
+    APP_USER: process.env.APP_USER as string,
   },
   CRON_SECRET: process.env.CRON_SECRET
 }

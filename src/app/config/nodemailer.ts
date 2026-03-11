@@ -1,17 +1,11 @@
-import nodemailer from "nodemailer";
+import { SendEmailSDK } from "@sushantokumar/email-sdk";
 import config from ".";
 import { otpTemplate } from "../utils/otpTemplate";
 
-// Create a test account or replace with real credentials.
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: config.node_env === "development" ? 465 : 587,
-  secure: config.node_env === "development", // true for 465, false for other ports
-  auth: {
-    user: config.nodeMailer.APP_USER,
-    pass: config.nodeMailer.APP_PASS,
-  },
-});
+const gmailSender = SendEmailSDK.createGmail({
+  user: config.nodeMailer.APP_USER,
+  pass: config.nodeMailer.APP_PASS,
+})
 
 interface ISendEmail {
   subject: string;
@@ -32,13 +26,13 @@ export const sendEmail = async (payload: ISendEmail) => {
 
   console.log("email sending start....");
 
-  const info = await transporter.sendMail({
+  const info = await gmailSender.send({
     from: `"Courstack ${purpose === "Security" ? "Security" : "Info"}" <${senderEmail}>`,
     to: email,
     subject,
 
-    text:text ??(otp? `Your OTP Code is ${otp}. This code will expire in 5 minutes.`
-        : undefined),
+    text: text ?? (otp ? `Your OTP Code is ${otp}. This code will expire in 5 minutes.`
+      : undefined),
 
     html: html ?? (otp ? otpTemplate(otp) : undefined),
   });
