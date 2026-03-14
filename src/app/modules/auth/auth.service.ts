@@ -1,18 +1,19 @@
 
+import { renderOtpEmail } from "@/app/email/render";
 import { JwtPayload } from "jsonwebtoken";
+import config from "../../config";
+import { sendEmail } from "../../config/send-email";
 import { ApiError } from "../../helper/ApiError";
+import { clearCache, getCache, setCache } from "../../helper/cache";
 import { checkUserHealth } from "../../helper/checkUserHealth";
 import httpStatus from "../../helper/httpStatusCode";
+import { IAuthUser } from "../../types";
 import { comparePasswords } from "../../utils/bcrypt";
+import { generateOTP } from "../../utils/generateOTP";
 import { decodedJWT, generateAccessAndRefreshToken } from "../../utils/jwt";
 import { userRepository } from "../user/user.repository";
 import { userService } from "../user/user.service";
 import { IVerifyOtp, Login } from "./auth.validation";
-import { IAuthUser } from "../../types";
-import { clearCache, getCache, setCache } from "../../helper/cache";
-import { generateOTP } from "../../utils/generateOTP";
-import { sendEmail } from "../../config/nodemailer";
-import config from "../../config";
 
 const login = async (payload: Login) => {
 
@@ -60,13 +61,16 @@ const getVerifyOtp = async (authUser: IAuthUser) => {
   const cached = await setCache(cacheKey, otp, 5);
 
   if (cached) {
+
+    const html = await renderOtpEmail(otp)
     // send email
     await sendEmail({
-      email: user.email,
+      from: config.SYSTEM_SECURITY_EMAIL,
+      to: user.email,
       purpose: "Security",
-      senderEmail: config.SYSTEM_SECURITY_EMAIL,
       subject: "Account Verify OTP",
-      otp
+      html,
+      text: `Your OTP Code is ${otp}. This code will expire in 5 minutes.`
     })
     return { redirectUrl: `${config.FRONTEND_URL}/verify?email=${user.email}` }
   }

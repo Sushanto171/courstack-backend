@@ -3,12 +3,19 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const node_path_1 = __importDefault(require("node:path"));
+const node_worker_threads_1 = require("node:worker_threads");
 const app_1 = __importDefault(require("./app"));
 const config_1 = __importDefault(require("./app/config"));
 const seedSuperAdmin_1 = __importDefault(require("./app/helper/seedSuperAdmin"));
+const workerPathname = node_path_1.default.join(__dirname, "app/modules/worker/worker.email.ts");
 const startServer = async () => {
     let server;
     try {
+        const worker = new node_worker_threads_1.Worker(workerPathname, { workerData: "Form main tread" });
+        worker.on("message", (message) => {
+            console.log("Main thread received:", message);
+        });
         // Start the server
         server = app_1.default.listen(config_1.default.port, () => {
             console.log(`⚡ Server is running on: http://localhost:${config_1.default.port}`);

@@ -7,7 +7,6 @@ const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const cors_1 = __importDefault(require("cors"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const express_1 = __importDefault(require("express"));
-const jobs_1 = require("./app/jobs");
 const globalError_1 = require("./app/middleware/globalError");
 const notFound_1 = require("./app/middleware/notFound");
 const routes_1 = __importDefault(require("./app/routes"));
@@ -18,7 +17,6 @@ app.use((0, cookie_parser_1.default)());
 app.use((0, cors_1.default)());
 app.use(express_1.default.urlencoded({ extended: true }));
 app.use("/api/v1", routes_1.default);
-(0, jobs_1.cronJob)();
 app.get("/", (req, res) => {
     const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
     const currentTime = new Date().toLocaleString("en-US", { timeZone: timezone });

@@ -3,7 +3,6 @@ import app from "./app";
 import config from "./app/config";
 import seedSuperAdmin from "./app/helper/seedSuperAdmin";
 
-
 const startServer = async () => {
   let server: Server;
   try {
@@ -14,7 +13,6 @@ const startServer = async () => {
     });
 
     await seedSuperAdmin()
-
 
     // Function to gracefully shut down the server
     const exitHandler = () => {
@@ -27,7 +25,6 @@ const startServer = async () => {
         process.exit(1);
       }
     };
-
 
     // Handle termination signals
     process.on("SIGINT", exitHandler);
