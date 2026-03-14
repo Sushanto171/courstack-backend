@@ -1,4 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import config from "@/app/config";
+import { renderAdminCreatedEmail, renderWelcomeEmail } from "@/app/email/render";
+import { addEmailQueue } from "@/app/queue/email.queue";
+import { getFrontendDashboardUrl } from "@/app/utils/getFrontendDashboardUrl";
 import { Role, UserStatus } from "../../../generated/prisma/enums";
 import { UserCreateInput, UserUpdateInput } from "../../../generated/prisma/models";
 import { permissions } from "../../config/permissions";
@@ -43,11 +47,22 @@ const createUser = async (payload: UserCreateInput) => {
 
   payload.password = await hashPassword(payload.password)
 
-  const res = await userRepository.create(payload)
+  const res = await userRepository.create(payload);
+
+  const html = await renderWelcomeEmail({ name: res.name, dashboardUrl: getFrontendDashboardUrl(res.role) })
+
+  addEmailQueue(
+    {
+      subject: "Welcome to Courstack 🚀",
+      to: res.email,
+      purpose: "info",
+      html
+    });
   return res
 }
 
 const createAdmin = async (payload: UserCreateInput) => {
+  const plainPass = payload.password
 
   const user = await userRepository.findByEmail(payload.email);
   if (user) throw new ApiError(httpStatus.CONFLICT, "This email already exist in database");
@@ -56,7 +71,16 @@ const createAdmin = async (payload: UserCreateInput) => {
   payload.role = Role.ADMIN
   payload.needPasswordChange = true
 
-  const res = await userRepository.create(payload)
+  const res = await userRepository.create(payload);
+
+  const html = await renderAdminCreatedEmail({ name: res.name, email: res.email, loginUrl: ` ${config.FRONTEND_URL}/login`, password: plainPass })
+
+  addEmailQueue({
+    subject: "Your Courstack Admin Account Has Been Created",
+    to: res.email,
+    purpose: "info",
+    html
+  });
   return res
 }
 

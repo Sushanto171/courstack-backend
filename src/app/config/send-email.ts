@@ -11,7 +11,7 @@ export interface ISendEmail {
   text?: string;
   html?: string;
   to: string;
-  from: string;
+  from?: string;
   purpose: "Security" | "info"
 }
 

@@ -1,8 +1,8 @@
 
 import { renderOtpEmail } from "@/app/email/render";
+import { addEmailQueue } from "@/app/queue/email.queue";
 import { JwtPayload } from "jsonwebtoken";
 import config from "../../config";
-import { sendEmail } from "../../config/send-email";
 import { ApiError } from "../../helper/ApiError";
 import { clearCache, getCache, setCache } from "../../helper/cache";
 import { checkUserHealth } from "../../helper/checkUserHealth";
@@ -64,7 +64,7 @@ const getVerifyOtp = async (authUser: IAuthUser) => {
 
     const html = await renderOtpEmail(otp)
     // send email
-    await sendEmail({
+    addEmailQueue({
       from: config.SYSTEM_SECURITY_EMAIL,
       to: user.email,
       purpose: "Security",

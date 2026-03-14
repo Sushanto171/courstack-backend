@@ -2,6 +2,7 @@ import { Server } from "http";
 import app from "./app";
 import config from "./app/config";
 import seedSuperAdmin from "./app/helper/seedSuperAdmin";
+import { emailWorker } from "./app/worker/email.worker";
 
 const startServer = async () => {
   let server: Server;
@@ -13,6 +14,7 @@ const startServer = async () => {
     });
 
     await seedSuperAdmin()
+    emailWorker()
 
     // Function to gracefully shut down the server
     const exitHandler = () => {
