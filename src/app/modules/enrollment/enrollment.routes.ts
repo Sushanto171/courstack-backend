@@ -1,3 +1,4 @@
+import { auditLogger } from "@/app/middleware/auditLogger"
 import { Router } from "express"
 import { PERMISSIONS } from "../../config/permissions"
 import authenticate from "../../middleware/authenticate"
@@ -14,6 +15,6 @@ router.get("/my-enrollments", authorize(PERMISSIONS.ENROLLMENT_VIEW_OWN_PROGRESS
 
 router.get("/:courseId", authorize(PERMISSIONS.ENROLLMENT_VIEW_STUDENTS), enrollController.getEnrollmentsByCourseId);
 
-router.post("/", validateRequest(enrollmentValidation.enrollSchema), authorize(PERMISSIONS.ENROLLMENT_JOIN), enrollController.create);
+router.post("/", auditLogger("course:enroll"), validateRequest(enrollmentValidation.enrollSchema), authorize(PERMISSIONS.ENROLLMENT_JOIN), enrollController.create);
 
 export const enrollmentRoutes = router
