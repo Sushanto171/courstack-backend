@@ -1,0 +1,14 @@
+// schema.prisma
+model SystemLog {
+  id        String   @id @default(uuid())
+  category  String // 'email' | 'auth' | 'error' | 'http'
+  event     String // 'email:sent' | 'login:failed' | etc
+  level     String // 'info' | 'error' | 'critical'
+  userId    String?
+  meta      Json? // extra data
+  createdAt DateTime @default(now())
+
+  @@index([category])
+  @@index([level])
+  @@index([createdAt])
+}

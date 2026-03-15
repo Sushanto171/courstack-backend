@@ -17,12 +17,12 @@ router.get("/my-courses", validateQuery(courseValidation.courseQuerySchema), aut
 
 router.get("/:slug", courseController.getBySlug)
 
-router.post("/", auditLogger("course:create"), authenticate, authorize(PERMISSIONS.COURSE_CREATE), upload.single("file"), validateRequest(courseValidation.createCourse), courseController.create);
+router.post("/", auditLogger("course:create", "course"), authenticate, authorize(PERMISSIONS.COURSE_CREATE), upload.single("file"), validateRequest(courseValidation.createCourse), courseController.create);
 
-router.patch("/status/:id", auditLogger("course:status-update"), authenticate, validateRequest(courseValidation.updateCourseStatus), authorize(PERMISSIONS.COURSE_STATUS_UPDATE), courseController.updateStatus);
+router.patch("/status/:id", auditLogger("course:status-update", "course"), authenticate, validateRequest(courseValidation.updateCourseStatus), authorize(PERMISSIONS.COURSE_STATUS_UPDATE), courseController.updateStatus);
 
-router.patch("/:id", authenticate, auditLogger("course:update"), authorize(PERMISSIONS.COURSE_UPDATE_OWN), upload.single("file"), validateRequest(courseValidation.createCourse), courseController.update);
+router.patch("/:id", authenticate, auditLogger("course:update", "course"), authorize(PERMISSIONS.COURSE_UPDATE_OWN), upload.single("file"), validateRequest(courseValidation.createCourse), courseController.update);
 
-router.delete("/soft/:id", auditLogger("course:soft"), authenticate, authorize(PERMISSIONS.COURSE_DELETE_OWN), courseController.softDelete);
+router.delete("/soft/:id", auditLogger("course:soft", "course"), authenticate, authorize(PERMISSIONS.COURSE_DELETE_OWN), courseController.softDelete);
 
 export const courseRoutes = router

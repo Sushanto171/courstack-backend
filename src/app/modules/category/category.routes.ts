@@ -14,8 +14,8 @@ router.get("/", categoryController.getAll);
 router.get("/:slug", categoryController.getBySlug);
 
 // for access only admin
-router.post("/", auditLogger("category:create"), validateRequest(categoryValidation.categorySchema), authenticate, authorize(PERMISSIONS.CATEGORY_CREATE), categoryController.create);
+router.post("/", auditLogger("category:create", "category"), validateRequest(categoryValidation.categorySchema), authenticate, authorize(PERMISSIONS.CATEGORY_CREATE), categoryController.create);
 
-router.patch("/:id", auditLogger("category:update"), validateRequest(categoryValidation.categorySchema), authenticate, authorize(PERMISSIONS.CATEGORY_UPDATE), categoryController.update)
+router.patch("/:id", auditLogger("category:update", "category"), validateRequest(categoryValidation.categorySchema), authenticate, authorize(PERMISSIONS.CATEGORY_UPDATE), categoryController.update)
 
 export const categoryRoutes = router
