@@ -18,6 +18,7 @@ const publishScheduledLesson = async () => {
     },
   });
 };
+
 export const cronJob = async () => {
   cron.schedule('* * * * *', async () => {
     try {

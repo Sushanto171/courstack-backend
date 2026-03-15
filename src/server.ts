@@ -2,6 +2,7 @@ import { Server } from "http";
 import app from "./app";
 import config from "./app/config";
 import seedSuperAdmin from "./app/helper/seedSuperAdmin";
+import { cronJob } from "./app/modules/cron/cron.service";
 import { emailWorker } from "./app/worker/email.worker";
 
 const startServer = async () => {
@@ -15,6 +16,7 @@ const startServer = async () => {
 
     await seedSuperAdmin()
     emailWorker()
+    cronJob()
 
     // Function to gracefully shut down the server
     const exitHandler = () => {
