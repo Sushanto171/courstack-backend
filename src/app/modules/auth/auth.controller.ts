@@ -20,6 +20,19 @@ const login = catchAsync(async (req, res) => {
   })
 })
 
+const logout = catchAsync(async (req, res) => {
+
+  res.clearCookie("accessToken")
+  res.clearCookie("refreshToken")
+
+  sendResponse(res, {
+    statusCode: httpStatus.NO_CONTENT,
+    success: true,
+    message: "Logout success",
+    data: null
+  })
+})
+
 const getMe = catchAsync(async (req, res) => {
 
   if (!req.user?.email) throw new ApiError(httpStatus.UNAUTHORIZED, "User no longer exists");
@@ -84,6 +97,7 @@ const verify = catchAsync(async (req, res) => {
 
 export const authController = {
   login,
+  logout,
   getMe,
   refreshToken,
   getVerifyOtp,
