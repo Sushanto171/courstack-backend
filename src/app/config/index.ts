@@ -34,7 +34,7 @@ export default {
     SSLC_BASE_URL: process.env.SSLC_BASE_URL as string,
   },
   BACKEND_URL: process.env.BACKEND_URL,
-  FRONTEND_URL: process.env.FRONTEND_URL,
+  FRONTEND_URL: process.env.FRONTEND_URL as string,
   SYSTEM_SECURITY_EMAIL: process.env.SYSTEM_SECURITY_EMAIL as string,
   SYSTEM_INFO_EMAIL: process.env.SYSTEM_INFO_EMAIL as string,
   nodeMailer: {
