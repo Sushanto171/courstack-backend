@@ -44,6 +44,6 @@ export const auditLogger = (event: string, category = 'auth') => (request: Reque
       }
     })
 
-    next()
   })
+  next()
 }
