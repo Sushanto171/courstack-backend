@@ -1,9 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-
 import config from '../config';
 import { prisma } from '../config/prisma';
 import { hashPassword } from '../utils/bcrypt';
-
 
 const seedSuperAdmin = async () => {
   console.log('🌱 Seeding super admin...');

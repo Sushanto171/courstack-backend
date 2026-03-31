@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const app_1 = __importDefault(require("./app"));
 const config_1 = __importDefault(require("./app/config"));
 const seedSuperAdmin_1 = __importDefault(require("./app/helper/seedSuperAdmin"));
+const cron_service_1 = require("./app/modules/cron/cron.service");
 const email_worker_1 = require("./app/worker/email.worker");
 const startServer = async () => {
     let server;
@@ -16,6 +17,7 @@ const startServer = async () => {
         });
         await (0, seedSuperAdmin_1.default)();
         (0, email_worker_1.emailWorker)();
+        (0, cron_service_1.cronJob)();
         // Function to gracefully shut down the server
         const exitHandler = () => {
             if (server) {
